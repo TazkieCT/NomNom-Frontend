@@ -1,0 +1,108 @@
+import type { Deal } from "../types/marketplace"
+
+export const SAMPLE_DEALS: Deal[] = [
+  { 
+    id: "1", 
+    title: "BBQ Chicken Rice Bowl", 
+    price: "$6", 
+    original: "$12", 
+    vendor: "Smokey's Grill", 
+    eta: "Ready now", 
+    tags: ["pickup", "hot"], 
+    distance: "0.5 mi",
+    rating: 4.8,
+    sold: 12,
+    category: "Main Course"
+  },
+  { 
+    id: "2", 
+    title: "Vegetarian Bento", 
+    price: "$5", 
+    original: "$10", 
+    vendor: "GreenLeaf", 
+    eta: "Prep in 10-20m", 
+    tags: ["vegan", "healthy"], 
+    distance: "0.8 mi",
+    rating: 4.9,
+    sold: 8,
+    category: "Healthy"
+  },
+  { 
+    id: "3", 
+    title: "Artisan Pizza Slice + Salad", 
+    price: "$4", 
+    original: "$9", 
+    vendor: "Piazza", 
+    eta: "Ready in 5m", 
+    tags: ["dine-in", "italian"], 
+    distance: "1.2 mi",
+    rating: 4.7,
+    sold: 15,
+    category: "Main Course"
+  },
+  { 
+    id: "4", 
+    title: "Sushi Box - 8 pcs", 
+    price: "$8", 
+    original: "$16", 
+    vendor: "Ocean Roll", 
+    eta: "Prep in 15m", 
+    tags: ["fresh", "japanese"], 
+    distance: "0.3 mi",
+    rating: 5.0,
+    sold: 20,
+    category: "Seafood"
+  },
+  { 
+    id: "5", 
+    title: "Daily Pastry Bundle", 
+    price: "$3", 
+    original: "$7", 
+    vendor: "Bakehouse", 
+    eta: "Ready now", 
+    tags: ["bakery", "sweet"], 
+    distance: "0.6 mi",
+    rating: 4.6,
+    sold: 25,
+    category: "Bakery"
+  },
+  { 
+    id: "6", 
+    title: "Gourmet Burger Combo", 
+    price: "$7", 
+    original: "$14", 
+    vendor: "Burger Haven", 
+    eta: "Ready now", 
+    tags: ["pickup", "hot"], 
+    distance: "1.0 mi",
+    rating: 4.8,
+    sold: 18,
+    category: "Main Course"
+  },
+  { 
+    id: "7", 
+    title: "Fresh Salad Bowl", 
+    price: "$4", 
+    original: "$9", 
+    vendor: "Green Bowl", 
+    eta: "Ready in 5m", 
+    tags: ["vegan", "healthy"], 
+    distance: "0.7 mi",
+    rating: 4.7,
+    sold: 10,
+    category: "Healthy"
+  },
+  { 
+    id: "8", 
+    title: "Croissant & Coffee Set", 
+    price: "$5", 
+    original: "$10", 
+    vendor: "Café Parisien", 
+    eta: "Ready now", 
+    tags: ["bakery", "breakfast"], 
+    distance: "0.4 mi",
+    rating: 4.9,
+    sold: 22,
+    category: "Bakery"
+  },
+]

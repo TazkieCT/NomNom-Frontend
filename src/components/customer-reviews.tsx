@@ -1,6 +1,6 @@
-import { motion } from "framer-motion"
+import { motion, useAnimationControls } from "framer-motion"
 import { Star, Quote } from "lucide-react"
-import { useState } from "react"
+import { useEffect } from "react"
 
 interface Review {
   name: string
@@ -63,12 +63,39 @@ export default function CustomerReviews() {
     }
   ]
 
-  // Duplicate reviews for seamless infinite loop
   const duplicatedReviews = [...reviews, ...reviews, ...reviews]
-  const [isPaused, setIsPaused] = useState(false)
+  const controls = useAnimationControls()
+
+  useEffect(() => {
+    controls.start({
+      x: -1 * (reviews.length * 400),
+      transition: {
+        duration: reviews.length * 8,
+        ease: "linear",
+        repeat: Infinity,
+        repeatType: "loop"
+      }
+    })
+  }, [controls, reviews.length])
+
+  const handleHoverStart = () => {
+    controls.stop()
+  }
+
+  const handleHoverEnd = () => {
+    controls.start({
+      x: -1 * (reviews.length * 400),
+      transition: {
+        duration: reviews.length * 8,
+        ease: "linear",
+        repeat: Infinity,
+        repeatType: "loop"
+      }
+    })
+  }
 
   return (
-    <section className="py-20 md:py-28 bg-linear-to-b from-gray-50 to-white overflow-hidden">
+    <section className="py-20 md:py-28 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
         <div className="text-center">
           <motion.div
@@ -87,39 +114,26 @@ export default function CustomerReviews() {
         </div>
       </div>
 
-      {/* Infinite Scroll Container */}
       <div className="relative">
-        {/* Gradient Overlays */}
         <div className="absolute left-0 top-0 bottom-0 w-32 bg-linear-to-r from-white to-transparent z-10 pointer-events-none" />
         <div className="absolute right-0 top-0 bottom-0 w-32 bg-linear-to-l from-white to-transparent z-10 pointer-events-none" />
 
         <motion.div
           className="flex gap-6"
-          animate={{
-            x: isPaused ? undefined : [0, -1 * (reviews.length * 400)]
-          }}
-          transition={{
-            x: {
-              repeat: Infinity,
-              repeatType: "loop",
-              duration: reviews.length * 8,
-              ease: "linear"
-            }
-          }}
-          onHoverStart={() => setIsPaused(true)}
-          onHoverEnd={() => setIsPaused(false)}
+          animate={controls}
+          onHoverStart={handleHoverStart}
+          onHoverEnd={handleHoverEnd}
         >
           {duplicatedReviews.map((review, index) => (
             <motion.div
               key={index}
               className="shrink-0 w-[380px]"
-              whileHover={{ y: -8, scale: 1.02 }}
               transition={{ duration: 0.3 }}
             >
-              <div className="relative h-full bg-white border border-gray-200 rounded-2xl p-6 shadow-sm hover:shadow-xl transition-shadow duration-300">
+              <div className="relative h-full bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-md transition-shadow duration-300">
                 <div className="absolute inset-0 bg-linear-to-br from-red-500/5 via-transparent to-orange-500/5 rounded-2xl" />
                 
-                <div className="absolute -top-3 -left-3 bg-linear-to-br from-red-500 to-orange-500 rounded-full p-2.5 shadow-lg">
+                <div className="absolute -top-3 -left-3 bg-red-600 rounded-full p-2.5 shadow-lg">
                   <Quote className="w-4 h-4 text-white" />
                 </div>
 

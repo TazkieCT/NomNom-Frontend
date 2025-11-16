@@ -18,7 +18,7 @@ export default function Footer() {
   const parallaxOffset = scrollY * 0.5
 
   return (
-    <footer className="relative bg-gradient-to-b from-gray-900 to-black text-white overflow-hidden">
+    <footer className="relative bg-gray-900 text-white overflow-hidden">
       <div
         className="absolute inset-0 opacity-20"
         style={{
@@ -66,7 +66,6 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* For Users */}
           <div>
             <h4 className="font-bold mb-4">For Users</h4>
             <ul className="space-y-2 text-gray-400 text-sm">
@@ -93,7 +92,6 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Legal */}
           <div>
             <h4 className="font-bold mb-4">Legal</h4>
             <ul className="space-y-2 text-gray-400 text-sm">
@@ -121,7 +119,6 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Divider */}
         <div className="border-t border-gray-800 pt-8 mt-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-gray-400 text-sm">© 2025 NOMNOM. All rights reserved.</p>

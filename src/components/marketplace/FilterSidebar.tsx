@@ -134,7 +134,7 @@ export default function FilterSidebar({
       {hasActiveFilters && (
         <button
           onClick={onClearFilters}
-          className="w-full px-4 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-sm font-medium"
+          className="w-full px-4 py-2.5 bg-gray-100 cursor-pointer text-gray-700 rounded-lg hover:bg-gray-200 transition text-sm font-medium"
         >
           Clear All Filters
         </button>

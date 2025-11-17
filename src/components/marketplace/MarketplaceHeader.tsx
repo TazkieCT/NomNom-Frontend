@@ -53,7 +53,6 @@ export default function MarketplaceHeader({
               <option value="rating">Highest Rated</option>
             </select>
 
-            {/* Mobile Filter Toggle */}
             <button
               onClick={onToggleMobileFilters}
               className="lg:hidden px-4 py-2.5 bg-red-600 text-white rounded-lg flex items-center justify-center gap-2 shadow-sm hover:bg-red-700"

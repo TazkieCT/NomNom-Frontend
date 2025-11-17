@@ -78,7 +78,7 @@ export default function FAQ() {
     <div>
       <main style={{ maxWidth: 1100, margin: "0 auto", padding: "48px 24px" }}>
         <section style={{ textAlign: "center", marginBottom: 28 }}>
-          <h1 style={{ fontSize: 34, margin: 0 }}>Frequently Asked Questions</h1>
+          <h1 style={{ fontSize: 34, margin: 0, color: "red" }}>Frequently Asked Questions</h1>
           <p style={{ marginTop: 12, color: "#444", lineHeight: 1.6 }}>
             Answers to the most common questions about using NomNom from claiming deals and
             redemption to payments, refunds, and merchant policies. Can't find what you need? Our

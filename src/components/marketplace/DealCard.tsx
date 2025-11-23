@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom"
 import { motion } from "framer-motion"
 import { MapPin, Clock, Star, TrendingUp } from "lucide-react"
 
@@ -21,12 +22,13 @@ interface DealCardProps {
 
 export default function DealCard({ deal, index }: DealCardProps) {
   return (
-    <motion.article
-      initial={{ y: 20 }}
-      animate={{ y: 0 }}
-      transition={{ delay: index * 0.05 }}
-      className="bg-white rounded-xl cursor-pointer hover:shadow-md transition-all duration-300 overflow-hidden border border-gray-100 group"
-    >
+    <Link to={`/deal/${deal.id}`}>
+      <motion.article
+        initial={{ y: 20 }}
+        animate={{ y: 0 }}
+        transition={{ delay: index * 0.05 }}
+        className="bg-white rounded-xl cursor-pointer hover:shadow-md transition-all duration-300 overflow-hidden border border-gray-100 group"
+      >
       <div className="relative h-48 bg-gray-100 overflow-hidden">
         <div className="absolute inset-0 flex items-center justify-center text-gray-400 font-medium text-center px-4">
           {deal.title}
@@ -84,6 +86,7 @@ export default function DealCard({ deal, index }: DealCardProps) {
           </button>
         </div>
       </div>
-    </motion.article>
+      </motion.article>
+    </Link>
   )
 }

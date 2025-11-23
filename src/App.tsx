@@ -7,6 +7,7 @@ import NotFound from './pages/NotFound'
 import Home from './pages/Home'
 import SignIn from './pages/SignIn'
 import SignUp from './pages/SignUp'
+import ItemDetail from './pages/ItemDetail'
 import Header from './components/header'
 import Footer from './components/footer'
 
@@ -19,6 +20,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/marketplace" element={<Marketplace />} />
+          <Route path="/deal/:id" element={<ItemDetail />} />
           <Route path="/about" element={<AboutUs />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/signin" element={<SignIn />} />

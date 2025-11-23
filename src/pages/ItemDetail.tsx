@@ -58,7 +58,7 @@ export default function ItemDetail() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <button
             onClick={() => navigate(-1)}
-            className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors font-semibold"
+            className="inline-flex cursor-pointer items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors font-semibold"
           >
             <ArrowLeft className="w-5 h-5" />
             Back
@@ -172,21 +172,21 @@ export default function ItemDetail() {
                 <div className="flex items-center gap-3">
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="w-10 h-10 rounded-lg bg-white border-2 border-gray-300 font-bold hover:border-gray-400 transition-colors"
+                    className="w-10 h-10 rounded-lg bg-white border-2 cursor-pointer border-gray-300 font-bold hover:border-gray-400 transition-colors"
                   >
                     -
                   </button>
                   <span className="text-xl font-bold w-8 text-center">{quantity}</span>
                   <button
                     onClick={() => setQuantity(Math.min(5, quantity + 1))}
-                    className="w-10 h-10 rounded-lg bg-white border-2 border-gray-300 font-bold hover:border-gray-400 transition-colors"
+                    className="w-10 h-10 rounded-lg bg-white border-2 cursor-pointer border-gray-300 font-bold hover:border-gray-400 transition-colors"
                   >
                     +
                   </button>
                 </div>
               </div>
 
-              <button className="w-full py-4 bg-red-600 text-white rounded-xl font-bold text-lg hover:bg-red-700 transition-all shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]">
+              <button className="w-full py-4 bg-red-600 cursor-pointer text-white rounded-xl font-bold text-lg hover:bg-red-700 transition-all shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]">
                 Claim Deal · ${(parseFloat(deal.price.replace("$", "")) * quantity).toFixed(2)}
               </button>
             </div>
@@ -230,7 +230,7 @@ export default function ItemDetail() {
                   {deal.tags.map(tag => (
                     <span
                       key={tag}
-                      className="px-4 py-2 bg-white border-2 border-gray-200 rounded-full text-sm font-semibold text-gray-700 hover:border-red-600 hover:text-red-600 transition-colors"
+                      className="px-4 py-2 bg-white border-2 cursor-pointer border-gray-200 rounded-full text-sm font-semibold text-gray-700 hover:border-red-600 hover:text-red-600 transition-colors"
                     >
                       #{tag}
                     </span>

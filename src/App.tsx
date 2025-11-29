@@ -13,6 +13,9 @@ import ItemDetail from './pages/ItemDetail'
 import BecomeSeller from './pages/BecomeSeller'
 import CreateStore from './pages/CreateStore'
 import Dashboard from './pages/Dashboard'
+import AddProduct from './pages/AddProduct'
+import EditProduct from './pages/EditProduct'
+import ManageProducts from './pages/ManageProducts'
 import Header from './components/header'
 import Footer from './components/footer'
 
@@ -38,6 +41,9 @@ function App() {
             <Route path="/become-seller" element={<PrivateRoute><BecomeSeller /></PrivateRoute>} />
             <Route path="/create-store" element={<PrivateRoute><CreateStore /></PrivateRoute>} />
             <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+            <Route path="/manage-products" element={<PrivateRoute><ManageProducts /></PrivateRoute>} />
+            <Route path="/add-product" element={<PrivateRoute><AddProduct /></PrivateRoute>} />
+            <Route path="/edit-product/:id" element={<PrivateRoute><EditProduct /></PrivateRoute>} />
             
             <Route path="*" element={<NotFound />} />
           </Routes>

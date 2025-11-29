@@ -11,7 +11,6 @@ export default function BecomeSeller() {
   const navigate = useNavigate()
   const { user, updateUser } = useAuth()
 
-  // Redirect if already a seller
   useEffect(() => {
     if (user?.role === 'seller') {
       navigate('/dashboard', { replace: true })
@@ -50,7 +49,6 @@ export default function BecomeSeller() {
     }
   }
 
-  // Don't render if already a seller (wait for redirect)
   if (user?.role === 'seller') {
     return null
   }

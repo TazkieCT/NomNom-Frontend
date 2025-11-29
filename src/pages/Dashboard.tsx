@@ -3,7 +3,7 @@ import { useLocation, Link } from "react-router-dom"
 import { motion } from "framer-motion"
 import { useAuth } from "../contexts/AuthContext"
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api'
 
 export default function Dashboard() {
   const [successMessage, setSuccessMessage] = useState("")
@@ -153,17 +153,14 @@ export default function Dashboard() {
                   Start by adding products to your store. Customers will be able to discover and purchase your surplus food items.
                 </p>
                 <Link
-                  to="/marketplace"
+                  to="/manage-products"
                   className="inline-flex items-center px-6 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition"
                 >
                   <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                   </svg>
-                  Add Your First Product
+                  Manage Products
                 </Link>
-                <p className="text-sm text-gray-500 mt-4">
-                  (Product management coming soon)
-                </p>
               </>
             )}
           </div>

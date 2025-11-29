@@ -40,11 +40,6 @@ export default function AboutUs() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.7 }}
             >
-              <div className="inline-flex items-center gap-2 mb-6">
-                <Sparkles className="w-5 h-5 text-red-600" />
-                <span className="text-sm font-semibold text-red-600 uppercase tracking-wider">About NomNom</span>
-              </div>
-
               <h1 className="text-5xl md:text-6xl font-black text-gray-900 mb-6 leading-tight">
                 Food that
                 <br />

@@ -8,8 +8,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
 export default function CreateStore() {
   const [name, setName] = useState("")
   const [address, setAddress] = useState("")
-  const [latitude, setLatitude] = useState("")
-  const [longitude, setLongitude] = useState("")
+  const [mapsLink, setMapsLink] = useState("")
   const [openHours, setOpenHours] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
@@ -44,9 +43,8 @@ export default function CreateStore() {
         openHours: openHours.trim()
       }
 
-      if (latitude && longitude) {
-        storeData.latitude = parseFloat(latitude)
-        storeData.longitude = parseFloat(longitude)
+      if (mapsLink) {
+        storeData.mapsLink = mapsLink.trim()
       }
 
       const response = await fetch(`${API_URL}/stores`, {
@@ -72,26 +70,6 @@ export default function CreateStore() {
     } finally {
       setLoading(false)
     }
-  }
-
-  async function getCurrentLocation() {
-    if (!navigator.geolocation) {
-      setError("Geolocation is not supported by your browser")
-      return
-    }
-
-    setLoading(true)
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setLatitude(position.coords.latitude.toString())
-        setLongitude(position.coords.longitude.toString())
-        setLoading(false)
-      },
-      (error) => {
-        setError("Unable to get your location. Please enter manually.")
-        setLoading(false)
-      }
-    )
   }
 
   if (!user || user.role !== 'seller') {
@@ -161,40 +139,19 @@ export default function CreateStore() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Location Coordinates (Optional)
+                Google Maps Link (Optional)
               </label>
-              <div className="grid grid-cols-2 gap-4">
-                <input
-                  type="number"
-                  step="any"
-                  value={latitude}
-                  onChange={(e) => setLatitude(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-200 outline-none"
-                  placeholder="Latitude"
-                  disabled={loading}
-                />
-                <input
-                  type="number"
-                  step="any"
-                  value={longitude}
-                  onChange={(e) => setLongitude(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-200 outline-none"
-                  placeholder="Longitude"
-                  disabled={loading}
-                />
-              </div>
-              <button
-                type="button"
-                onClick={getCurrentLocation}
+              <input
+                type="url"
+                value={mapsLink}
+                onChange={(e) => setMapsLink(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-200 outline-none"
+                placeholder="https://www.google.com/maps/embed?pb=..."
                 disabled={loading}
-                className="mt-2 text-sm text-red-600 hover:text-red-700 font-medium flex items-center gap-1"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                Use my current location
-              </button>
+              />
+              <p className="mt-1 text-xs text-gray-500">
+                Go to Google Maps → Share → Embed a map → Copy the iframe src URL
+              </p>
             </div>
 
             <div>
@@ -243,7 +200,7 @@ export default function CreateStore() {
             <li>• Choose a clear, memorable name for your store</li>
             <li>• Provide accurate address information for customer pickup</li>
             <li>• Keep your opening hours up to date</li>
-            <li>• Adding location coordinates helps customers find you on maps</li>
+            <li>• Adding a Google Maps link helps customers find you easily</li>
           </ul>
         </div>
       </motion.div>

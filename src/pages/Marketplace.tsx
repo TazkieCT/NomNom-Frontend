@@ -50,14 +50,13 @@ export default function Marketplace() {
 
   const deals = useMemo(() => {
     let list = SAMPLE_DEALS.filter((d: Deal) => {
-      // Search filter
       const matchesQuery = d.title.toLowerCase().includes(query.toLowerCase()) || 
                           d.vendor.toLowerCase().includes(query.toLowerCase())
       
       // Category filter
       const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(d.category || "")
       
-      // Tag filter
+      // Diet filter
       const matchesTags = selectedTags.length === 0 || selectedTags.some(tag => d.tags?.includes(tag))
       
       // Price filter
@@ -74,7 +73,6 @@ export default function Marketplace() {
       return matchesQuery && matchesCategory && matchesTags && matchesPrice && matchesDistance
     })
 
-    // Sorting
     if (sort === "price-low") {
       list = list.slice().sort((a, b) => parseFloat(a.price.replace("$", "")) - parseFloat(b.price.replace("$", "")))
     } else if (sort === "price-high") {
@@ -101,7 +99,6 @@ export default function Marketplace() {
 
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex gap-8">
-          {/* Desktop Sidebar */}
           <aside className="hidden lg:block w-80 shrink-0">
             <div className="sticky top-32">
               <FilterSidebar
@@ -119,7 +116,6 @@ export default function Marketplace() {
             </div>
           </aside>
 
-          {/* Mobile Filters Modal */}
           <AnimatePresence>
             {showMobileFilters && (
               <MobileFilterModal
@@ -139,7 +135,6 @@ export default function Marketplace() {
             )}
           </AnimatePresence>
 
-          {/* Deals Grid */}
           <main className="flex-1 min-w-0">
             {deals.length === 0 ? (
               <div className="text-center py-20">

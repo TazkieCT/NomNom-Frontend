@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom"
-import { motion } from "framer-motion"
-import { MapPin, Clock, Star, TrendingUp } from "lucide-react"
+import { Star, TrendingUp } from "lucide-react"
 
 type Deal = {
   id: string
@@ -9,6 +8,7 @@ type Deal = {
   original?: string
   vendor: string
   eta: string
+  image?: string
   distance?: string
   rating?: number
   sold?: number
@@ -17,26 +17,33 @@ type Deal = {
 
 interface DealCardProps {
   deal: Deal
-  index: number
 }
 
-export default function DealCard({ deal, index }: DealCardProps) {
+export default function DealCard({ deal }: DealCardProps) {
   return (
     <Link to={`/deal/${deal.id}`}>
-      <motion.article
-        initial={{ y: 20 }}
-        animate={{ y: 0 }}
-        transition={{ delay: index * 0.05 }}
+      <article
         className="bg-white rounded-xl cursor-pointer hover:shadow-md transition-all duration-300 overflow-hidden border border-gray-100 group"
       >
       <div className="relative h-48 bg-gray-100 overflow-hidden">
-        <div className="absolute inset-0 flex items-center justify-center text-gray-400 font-medium text-center px-4">
-          {deal.title}
-        </div>
+        {deal.image ? (
+          <img
+            src={deal.image}
+            alt={deal.title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            onError={(e) => {
+              e.currentTarget.style.display = 'none'
+            }}
+          />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center text-gray-400 font-medium text-center px-4">
+            {deal.title}
+          </div>
+        )}
         
         {deal.original && (
           <div className="absolute top-3 left-3 bg-red-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
-            {Math.round((1 - parseFloat(deal.price.replace("$", "")) / parseFloat(deal.original.replace("$", ""))) * 100)}% OFF
+            {Math.round((1 - parseFloat(deal.price.replace("Rp ", "").replace(/\./g, "")) / parseFloat(deal.original.replace("Rp ", "").replace(/\./g, ""))) * 100)}% OFF
           </div>
         )}
 
@@ -54,23 +61,10 @@ export default function DealCard({ deal, index }: DealCardProps) {
         </h3>
         <p className="text-sm text-gray-600 mb-3">{deal.vendor}</p>
 
-        <div className="flex items-center gap-3 mb-4 text-xs text-gray-500">
-          {deal.rating && (
-            <div className="flex items-center gap-1">
-              <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-              <span className="font-semibold text-gray-700">{deal.rating}</span>
-            </div>
-          )}
-          {deal.distance && (
-            <div className="flex items-center gap-1">
-              <MapPin className="w-3.5 h-3.5" />
-              <span>{deal.distance}</span>
-            </div>
-          )}
-          <div className="flex items-center gap-1">
-            <Clock className="w-3.5 h-3.5" />
-            <span>{deal.eta}</span>
-          </div>
+        <div className="flex items-center gap-1 mb-4 text-xs text-gray-600">
+          <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+          <span className="font-semibold">{deal.rating || 0}</span>
+          <span className="text-gray-500">(120 reviews)</span>
         </div>
 
         <div className="flex items-center justify-between pt-4 border-t border-gray-100">
@@ -86,7 +80,7 @@ export default function DealCard({ deal, index }: DealCardProps) {
           </button>
         </div>
       </div>
-      </motion.article>
+      </article>
     </Link>
   )
 }

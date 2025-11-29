@@ -7,14 +7,13 @@ interface MobileFilterModalProps {
   categories: string[]
   selectedCategories: string[]
   selectedTags: string[]
-  selectedDistances: string[]
   priceRange: [number, number]
   onToggleCategory: (cat: string) => void
   onToggleTag: (tag: string) => void
-  onToggleDistance: (dist: string) => void
   onPriceChange: (value: number) => void
   onClearFilters: () => void
   onClose: () => void
+  dietFilters?: string[]
 }
 
 export default function MobileFilterModal({
@@ -22,14 +21,13 @@ export default function MobileFilterModal({
   categories,
   selectedCategories,
   selectedTags,
-  selectedDistances,
   priceRange,
   onToggleCategory,
   onToggleTag,
-  onToggleDistance,
   onPriceChange,
   onClearFilters,
-  onClose
+  onClose,
+  dietFilters = []
 }: MobileFilterModalProps) {
   if (!isOpen) return null
 
@@ -62,13 +60,12 @@ export default function MobileFilterModal({
           categories={categories}
           selectedCategories={selectedCategories}
           selectedTags={selectedTags}
-          selectedDistances={selectedDistances}
           priceRange={priceRange}
           onToggleCategory={onToggleCategory}
           onToggleTag={onToggleTag}
-          onToggleDistance={onToggleDistance}
           onPriceChange={onPriceChange}
           onClearFilters={onClearFilters}
+          dietFilters={dietFilters}
         />
       </motion.div>
     </>

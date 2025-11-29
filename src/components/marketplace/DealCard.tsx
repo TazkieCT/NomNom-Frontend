@@ -11,6 +11,7 @@ type Deal = {
   image?: string
   distance?: string
   rating?: number
+  reviewCount?: number
   sold?: number
   category?: string
 }
@@ -64,7 +65,11 @@ export default function DealCard({ deal }: DealCardProps) {
         <div className="flex items-center gap-1 mb-4 text-xs text-gray-600">
           <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
           <span className="font-semibold">{deal.rating || 0}</span>
-          <span className="text-gray-500">(120 reviews)</span>
+          {deal.reviewCount !== undefined && deal.reviewCount > 0 ? (
+            <span className="text-gray-500">({deal.reviewCount} {deal.reviewCount === 1 ? 'review' : 'reviews'})</span>
+          ) : (
+            <span className="text-gray-500">(No reviews)</span>
+          )}
         </div>
 
         <div className="flex items-center justify-between pt-4 border-t border-gray-100">

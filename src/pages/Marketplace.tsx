@@ -20,6 +20,8 @@ interface Food {
   categoryId: { _id: string; name: string }
   storeId: { _id: string; name: string; address: string }
   filters: { _id: string; name: string }[]
+  averageRating: number
+  totalReviews: number
 }
 
 interface Category {
@@ -114,7 +116,8 @@ export default function Marketplace() {
       tags: food.filters.map(f => f.name),
       category: food.categoryId.name,
       distance: "2.5 mi",
-      rating: 4.5
+      rating: food.averageRating,
+      reviewCount: food.totalReviews
     }))
   }, [foods])
 

@@ -33,6 +33,8 @@ interface Food {
     openHours: string
   }
   filters: { _id: string; name: string }[]
+  averageRating: number
+  totalReviews: number
 }
 
 export default function ItemDetail() {
@@ -280,8 +282,12 @@ export default function ItemDetail() {
 
             <div className="flex items-center gap-1 mb-6 pb-6 border-b border-gray-200 text-sm text-gray-600">
               <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-              <span className="font-semibold">4.5</span>
-              <span className="text-gray-500">(120 reviews)</span>
+              <span className="font-semibold">{food.averageRating || 0}</span>
+              {food.totalReviews > 0 ? (
+                <span className="text-gray-500">({food.totalReviews} {food.totalReviews === 1 ? 'review' : 'reviews'})</span>
+              ) : (
+                <span className="text-gray-500">(No reviews yet)</span>
+              )}
             </div>
 
             {food.description && (

@@ -212,7 +212,7 @@ export default function EditProduct() {
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                placeholder="e.g., Margherita Pizza"
+                placeholder="e.g., Yellow Rice"
               />
             </div>
 

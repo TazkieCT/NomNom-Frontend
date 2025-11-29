@@ -116,7 +116,7 @@ export default function CreateStore() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-200 outline-none"
-                placeholder="e.g., Pizza Paradise"
+                placeholder="e.g., Rocky Rooster"
                 required
                 disabled={loading}
               />

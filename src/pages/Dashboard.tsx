@@ -5,10 +5,25 @@ import { useAuth } from "../contexts/AuthContext"
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api'
 
+interface Statistics {
+  totalOrders: number
+  pendingOrders: number
+  completedOrders: number
+  activeProducts: number
+  totalRevenue: number
+}
+
 export default function Dashboard() {
   const [successMessage, setSuccessMessage] = useState("")
   const [hasStore, setHasStore] = useState<boolean | null>(null)
   const [loading, setLoading] = useState(true)
+  const [stats, setStats] = useState<Statistics>({
+    totalOrders: 0,
+    pendingOrders: 0,
+    completedOrders: 0,
+    activeProducts: 0,
+    totalRevenue: 0
+  })
   const location = useLocation()
   const { user } = useAuth()
 
@@ -36,6 +51,10 @@ export default function Dashboard() {
 
         if (response.ok) {
           setHasStore(true)
+          const token = localStorage.getItem('token')
+          if (token) {
+            await fetchStatistics(token)
+          }
         } else if (response.status === 404) {
           setHasStore(false)
         } else {
@@ -46,6 +65,37 @@ export default function Dashboard() {
         setHasStore(false)
       } finally {
         setLoading(false)
+      }
+    }
+
+    async function fetchStatistics(token: string) {
+      try {
+        const [ordersRes, foodsRes] = await Promise.all([
+          fetch(`${API_URL}/orders`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          }),
+          fetch(`${API_URL}/foods/my/foods`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          })
+        ])
+
+        if (ordersRes.ok && foodsRes.ok) {
+          const orders = await ordersRes.json()
+          const foods = await foodsRes.json()
+
+          const completedOrders = orders.filter((o: any) => o.status === 'completed')
+          const totalRevenue = completedOrders.reduce((sum: number, order: any) => sum + order.finalPrice, 0)
+
+          setStats({
+            totalOrders: orders.length,
+            pendingOrders: orders.filter((o: any) => o.status === 'pending').length,
+            completedOrders: completedOrders.length,
+            activeProducts: foods.filter((f: any) => f.isAvailable).length,
+            totalRevenue
+          })
+        }
+      } catch (error) {
+        console.error('Error fetching statistics:', error)
       }
     }
 
@@ -76,27 +126,37 @@ export default function Dashboard() {
         )}
 
         <div className="grid md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100">
+          <Link
+            to="/seller-orders"
+            className="bg-white p-6 rounded-xl shadow-md border border-gray-100 hover:shadow-lg transition-shadow"
+          >
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-sm font-medium text-gray-600">Total Orders</h3>
               <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
               </svg>
             </div>
-            <p className="text-3xl font-bold text-gray-900">0</p>
-            <p className="text-sm text-gray-500 mt-1">No orders yet</p>
-          </div>
+            <p className="text-3xl font-bold text-gray-900">{stats.totalOrders}</p>
+            <p className="text-sm text-gray-500 mt-1">
+              {stats.pendingOrders > 0 ? `${stats.pendingOrders} pending` : 'All processed'}
+            </p>
+          </Link>
 
-          <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100">
+          <Link
+            to="/manage-products"
+            className="bg-white p-6 rounded-xl shadow-md border border-gray-100 hover:shadow-lg transition-shadow"
+          >
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-sm font-medium text-gray-600">Active Products</h3>
               <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
               </svg>
             </div>
-            <p className="text-3xl font-bold text-gray-900">0</p>
-            <p className="text-sm text-gray-500 mt-1">Add your first product</p>
-          </div>
+            <p className="text-3xl font-bold text-gray-900">{stats.activeProducts}</p>
+            <p className="text-sm text-gray-500 mt-1">
+              {stats.activeProducts === 0 ? 'Add your first product' : 'Available for sale'}
+            </p>
+          </Link>
 
           <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100">
             <div className="flex items-center justify-between mb-4">
@@ -105,8 +165,12 @@ export default function Dashboard() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <p className="text-3xl font-bold text-gray-900">$0</p>
-            <p className="text-sm text-gray-500 mt-1">Start selling today</p>
+            <p className="text-3xl font-bold text-gray-900">
+              Rp {stats.totalRevenue.toLocaleString('id-ID')}
+            </p>
+            <p className="text-sm text-gray-500 mt-1">
+              {stats.completedOrders} completed {stats.completedOrders === 1 ? 'order' : 'orders'}
+            </p>
           </div>
         </div>
 

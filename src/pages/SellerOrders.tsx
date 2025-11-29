@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { useNavigate, Link } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
 import { 
   ShoppingBag, 
@@ -8,9 +8,8 @@ import {
   XCircle, 
   Store,
   Calendar,
-  ChevronRight,
-  Star,
-  X
+  User,
+  Package
 } from "lucide-react"
 import { useAuth } from "../contexts/AuthContext"
 
@@ -28,6 +27,10 @@ interface OrderItem {
 
 interface Order {
   _id: string
+  customerId: {
+    _id: string
+    username: string
+  }
   storeId: {
     _id: string
     name: string
@@ -38,14 +41,6 @@ interface Order {
   status: 'pending' | 'completed' | 'cancelled'
   couponCode?: string
   createdAt: string
-}
-
-interface Review {
-  _id: string
-  orderId: string
-  foodId: string
-  rating: number
-  comment: string
 }
 
 const statusConfig = {
@@ -66,7 +61,7 @@ const statusConfig = {
   }
 }
 
-export default function Orders() {
+export default function SellerOrders() {
   const navigate = useNavigate()
   const { user } = useAuth()
   const [orders, setOrders] = useState<Order[]>([])
@@ -74,31 +69,20 @@ export default function Orders() {
   const [error, setError] = useState("")
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [sortBy, setSortBy] = useState<'newest' | 'oldest'>('newest')
-  const [reviews, setReviews] = useState<Review[]>([])
-  const [showReviewModal, setShowReviewModal] = useState(false)
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
-  const [selectedFood, setSelectedFood] = useState<OrderItem | null>(null)
-  const [rating, setRating] = useState(5)
-  const [comment, setComment] = useState("")
-  const [reviewLoading, setReviewLoading] = useState(false)
-  const [reviewError, setReviewError] = useState("")
-  const [cancelLoading, setCancelLoading] = useState<string | null>(null)
-  const [showCancelModal, setShowCancelModal] = useState(false)
-  const [orderToCancel, setOrderToCancel] = useState<string | null>(null)
+  const [processingOrder, setProcessingOrder] = useState<string | null>(null)
 
   useEffect(() => {
     if (!user) {
-      navigate('/signin', { state: { from: '/orders' } })
+      navigate('/signin', { state: { from: '/seller-orders' } })
       return
     }
 
-    if (user.role !== 'customer') {
+    if (user.role !== 'seller') {
       navigate('/')
       return
     }
 
     fetchOrders()
-    fetchReviews()
   }, [user, navigate])
 
   const fetchOrders = async () => {
@@ -126,144 +110,31 @@ export default function Orders() {
     }
   }
 
-  const fetchReviews = async () => {
-    try {
-      const token = localStorage.getItem('token')
-      const response = await fetch(`${API_URL}/reviews/my/reviews`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-      if (response.ok) {
-        const data = await response.json()
-        setReviews(data)
-        return data
-      }
-    } catch (error) {
-      console.error('Error fetching reviews:', error)
-    }
-    return []
-  }
-
-  const openReviewModal = (order: Order, item: OrderItem) => {
-    setSelectedOrder(order)
-    setSelectedFood(item)
-    
-    const existingReview = reviews.find(
-      r => r.orderId === order._id && r.foodId === item.foodId._id
-    )
-    
-    if (existingReview) {
-      setRating(existingReview.rating)
-      setComment(existingReview.comment)
-    } else {
-      setRating(5)
-      setComment("")
-    }
-    
-    setShowReviewModal(true)
-    setReviewError("")
-  }
-
-  const closeReviewModal = () => {
-    setShowReviewModal(false)
-    setSelectedOrder(null)
-    setSelectedFood(null)
-    setRating(5)
-    setComment("")
-    setReviewError("")
-  }
-
-  const handleSubmitReview = async () => {
-    if (!selectedOrder || !selectedFood) return
-
-    setReviewLoading(true)
-    setReviewError("")
-
-    try {
-      const token = localStorage.getItem('token')
-      const latestReviews = await fetchReviews()
-      
-      const existingReview = latestReviews.find(
-        (r: Review) => r.orderId === selectedOrder._id && r.foodId === selectedFood.foodId._id
-      )
-
-      let response
-      if (existingReview) {
-        response = await fetch(`${API_URL}/reviews/${existingReview._id}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({ rating, comment })
-        })
-      } else {
-        response = await fetch(`${API_URL}/reviews`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            orderId: selectedOrder._id,
-            foodId: selectedFood.foodId._id,
-            rating,
-            comment
-          })
-        })
-      }
-
-      if (response.ok) {
-        await fetchReviews()
-        closeReviewModal()
-      } else {
-        const data = await response.json()
-        setReviewError(data.message || 'Failed to submit review')
-      }
-    } catch (error) {
-      setReviewError('An error occurred. Please try again.')
-    } finally {
-      setReviewLoading(false)
-    }
-  }
-
-  const hasReviewedFood = (orderId: string, foodId: string) => {
-    return reviews.some(r => r.orderId === orderId && r.foodId === foodId)
-  }
-
-  const handleCancelOrder = async (orderId: string) => {
-    setOrderToCancel(orderId)
-    setShowCancelModal(true)
-  }
-
-  const confirmCancelOrder = async () => {
-    if (!orderToCancel) return
-
-    setCancelLoading(orderToCancel)
+  const handleCompleteOrder = async (orderId: string) => {
+    setProcessingOrder(orderId)
     setError("")
-    setShowCancelModal(false)
 
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(`${API_URL}/orders/${orderToCancel}/cancel`, {
+      const response = await fetch(`${API_URL}/orders/${orderId}/status`, {
         method: 'PUT',
         headers: {
+          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
-        }
+        },
+        body: JSON.stringify({ status: 'completed' })
       })
 
       if (response.ok) {
         await fetchOrders()
       } else {
         const data = await response.json()
-        setError(data.message || 'Failed to cancel order')
+        setError(data.message || 'Failed to update order status')
       }
     } catch (error) {
       setError('An error occurred. Please try again.')
     } finally {
-      setCancelLoading(null)
-      setOrderToCancel(null)
+      setProcessingOrder(null)
     }
   }
 
@@ -291,7 +162,7 @@ export default function Orders() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-red-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading your orders...</p>
+          <p className="text-gray-600">Loading orders...</p>
         </div>
       </div>
     )
@@ -303,11 +174,11 @@ export default function Orders() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex items-center gap-3 mb-2">
             <div className="w-12 h-12 bg-red-100 rounded-2xl flex items-center justify-center">
-              <ShoppingBag className="w-6 h-6 text-red-600" />
+              <Package className="w-6 h-6 text-red-600" />
             </div>
-            <h1 className="text-3xl md:text-4xl font-black text-gray-900">My Orders</h1>
+            <h1 className="text-3xl md:text-4xl font-black text-gray-900">Store Orders</h1>
           </div>
-          <p className="text-gray-600 mb-6">Track and manage your food orders</p>
+          <p className="text-gray-600 mb-6">Manage and process customer orders</p>
           
           <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
             <div className="flex flex-wrap gap-2">
@@ -383,19 +254,11 @@ export default function Orders() {
             <h2 className="text-2xl font-bold text-gray-900 mb-2">
               {orders.length === 0 ? 'No orders yet' : 'No orders found'}
             </h2>
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-600">
               {orders.length === 0 
-                ? 'Start exploring and order your favorite food!'
+                ? 'Orders from customers will appear here.'
                 : 'Try adjusting your filters to see more orders.'}
             </p>
-            {orders.length === 0 && (
-              <Link
-                to="/marketplace"
-                className="inline-block px-6 py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors"
-              >
-                Browse Marketplace
-              </Link>
-            )}
           </div>
         ) : (
           <>
@@ -419,8 +282,8 @@ export default function Orders() {
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
-                          <Store className="w-5 h-5 text-gray-500" />
-                          <h3 className="text-xl font-bold text-gray-900">{order.storeId.name}</h3>
+                          <User className="w-5 h-5 text-gray-500" />
+                          <h3 className="text-xl font-bold text-gray-900">{order.customerId.username}</h3>
                         </div>
                         <div className="flex items-center gap-2 text-sm text-gray-600">
                           <Calendar className="w-4 h-4" />
@@ -453,12 +316,7 @@ export default function Orders() {
                             )}
                           </div>
                           <div className="flex-1">
-                            <Link
-                              to={`/deal/${item.foodId._id}`}
-                              className="font-semibold text-gray-900 hover:text-red-600 transition-colors"
-                            >
-                              {item.foodId.name}
-                            </Link>
+                            <p className="font-semibold text-gray-900">{item.foodId.name}</p>
                             <p className="text-sm text-gray-600">
                               Quantity: {item.quantity} × Rp {item.foodId.price.toLocaleString('id-ID')}
                             </p>
@@ -498,36 +356,13 @@ export default function Orders() {
                     {order.status === 'pending' && (
                       <div className="mt-4 pt-4 border-t border-gray-200">
                         <button
-                          onClick={() => handleCancelOrder(order._id)}
-                          disabled={cancelLoading === order._id}
-                          className="w-full py-3 px-4 cursor-pointer bg-red-50 border-2 border-red-200 text-red-700 rounded-xl font-semibold hover:bg-red-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                          onClick={() => handleCompleteOrder(order._id)}
+                          disabled={processingOrder === order._id}
+                          className="w-full py-3 px-4 cursor-pointer bg-green-50 border-2 border-green-200 text-green-700 rounded-xl font-semibold hover:bg-green-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                         >
-                          <XCircle className="w-5 h-5" />
-                          {cancelLoading === order._id ? 'Cancelling...' : 'Cancel Order'}
+                          <CheckCircle2 className="w-5 h-5" />
+                          {processingOrder === order._id ? 'Processing...' : 'Mark as Completed'}
                         </button>
-                      </div>
-                    )}
-
-                    {order.status === 'completed' && (
-                      <div className="mt-4 pt-4 border-t border-gray-200">
-                        <div className="space-y-2">
-                          {order.items.map((item, itemIdx) => {
-                            const reviewed = hasReviewedFood(order._id, item.foodId._id)
-                            return (
-                              <button
-                                key={itemIdx}
-                                onClick={() => openReviewModal(order, item)}
-                                className="w-full py-3 px-4 bg-amber-50 border-2 border-amber-200 text-amber-700 rounded-xl font-semibold hover:bg-amber-100 transition-colors flex items-center justify-between gap-2"
-                              >
-                                <span className="flex items-center gap-2">
-                                  <Star className="w-5 h-5" />
-                                  {reviewed ? `Update Review for ${item.foodId.name}` : `Review ${item.foodId.name}`}
-                                </span>
-                                <ChevronRight className="w-5 h-5" />
-                              </button>
-                            )
-                          })}
-                        </div>
                       </div>
                     )}
                   </div>
@@ -538,129 +373,6 @@ export default function Orders() {
           </>
         )}
       </div>
-
-      {showCancelModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-2xl max-w-md w-full p-6"
-          >
-            <div className="flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mx-auto mb-4">
-              <XCircle className="w-8 h-8 text-red-600" />
-            </div>
-            <h2 className="text-2xl font-black text-gray-900 text-center mb-2">
-              Cancel Order?
-            </h2>
-            <p className="text-gray-600 text-center mb-6">
-              Are you sure you want to cancel this order? This action cannot be undone.
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => {
-                  setShowCancelModal(false)
-                  setOrderToCancel(null)
-                }}
-                className="flex-1 py-3 px-6 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition-colors"
-              >
-                Keep Order
-              </button>
-              <button
-                onClick={confirmCancelOrder}
-                className="flex-1 py-3 px-6 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
-              >
-                <XCircle className="w-5 h-5" />
-                Cancel Order
-              </button>
-            </div>
-          </motion.div>
-        </div>
-      )}
-
-      {/* Review Modal */}
-      {showReviewModal && selectedFood && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto"
-          >
-            <div className="p-6">
-              <div className="flex items-start justify-between mb-6">
-                <div>
-                  <h2 className="text-2xl font-black text-gray-900 mb-1">
-                    {hasReviewedFood(selectedOrder!._id, selectedFood.foodId._id) ? 'Update Your Review' : 'Write a Review'}
-                  </h2>
-                  <p className="text-gray-600">{selectedFood.foodId.name}</p>
-                </div>
-                <button
-                  onClick={closeReviewModal}
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                  <X className="w-6 h-6" />
-                </button>
-              </div>
-
-              {reviewError && (
-                <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-                  <p className="text-sm text-red-600">{reviewError}</p>
-                </div>
-              )}
-
-              <div className="mb-6">
-                <label className="block text-sm font-semibold text-gray-900 mb-3">Rating</label>
-                <div className="flex gap-2">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <button
-                      key={star}
-                      onClick={() => setRating(star)}
-                      className="transition-transform hover:scale-110"
-                    >
-                      <Star
-                        className={`w-10 h-10 ${
-                          star <= rating
-                            ? 'fill-amber-400 text-amber-400'
-                            : 'text-gray-300'
-                        }`}
-                      />
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="mb-6">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
-                  Comment (Optional)
-                </label>
-                <textarea
-                  value={comment}
-                  onChange={(e) => setComment(e.target.value)}
-                  placeholder="Share your experience with this food..."
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-red-500 resize-none"
-                  rows={4}
-                />
-              </div>
-
-              <div className="flex gap-3">
-                <button
-                  onClick={closeReviewModal}
-                  disabled={reviewLoading}
-                  className="flex-1 py-3 px-6 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition-colors disabled:opacity-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSubmitReview}
-                  disabled={reviewLoading}
-                  className="flex-1 py-3 px-6 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-                >
-                  {reviewLoading ? 'Submitting...' : hasReviewedFood(selectedOrder!._id, selectedFood.foodId._id) ? 'Update Review' : 'Submit Review'}
-                </button>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      )}
     </div>
   )
 }

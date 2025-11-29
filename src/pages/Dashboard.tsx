@@ -3,8 +3,12 @@ import { useLocation, Link } from "react-router-dom"
 import { motion } from "framer-motion"
 import { useAuth } from "../contexts/AuthContext"
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+
 export default function Dashboard() {
   const [successMessage, setSuccessMessage] = useState("")
+  const [hasStore, setHasStore] = useState<boolean | null>(null)
+  const [loading, setLoading] = useState(true)
   const location = useLocation()
   const { user } = useAuth()
 
@@ -14,6 +18,39 @@ export default function Dashboard() {
       window.history.replaceState({}, document.title)
     }
   }, [location])
+
+  useEffect(() => {
+    async function checkStore() {
+      if (!user || user.role !== 'seller') {
+        setLoading(false)
+        return
+      }
+
+      try {
+        const token = localStorage.getItem('token')
+        const response = await fetch(`${API_URL}/stores/my/store`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
+
+        if (response.ok) {
+          setHasStore(true)
+        } else if (response.status === 404) {
+          setHasStore(false)
+        } else {
+          setHasStore(false)
+        }
+      } catch (error) {
+        console.error('Error checking store:', error)
+        setHasStore(false)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    checkStore()
+  }, [user])
 
   return (
     <main className="min-h-[72vh] py-12 px-4">
@@ -75,29 +112,60 @@ export default function Dashboard() {
 
         <div className="bg-white rounded-xl shadow-md p-8 text-center">
           <div className="max-w-md mx-auto">
-            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-            </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              Your dashboard is ready!
-            </h2>
-            <p className="text-gray-600 mb-6">
-              Start by adding products to your store. Customers will be able to discover and purchase your surplus food items.
-            </p>
-            <Link
-              to="/marketplace"
-              className="inline-flex items-center px-6 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition"
-            >
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-              Add Your First Product
-            </Link>
-            <p className="text-sm text-gray-500 mt-4">
-              (Product management coming soon)
-            </p>
+            {loading ? (
+              <div className="flex justify-center items-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
+              </div>
+            ) : hasStore === false ? (
+              <>
+                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                </div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                  Create your store first!
+                </h2>
+                <p className="text-gray-600 mb-6">
+                  Before you can add products, you need to set up your store with name, location, and operating hours.
+                </p>
+                <Link
+                  to="/create-store"
+                  className="inline-flex items-center px-6 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition"
+                >
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  Create Your Store
+                </Link>
+              </>
+            ) : (
+              <>
+                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                </div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                  Your dashboard is ready!
+                </h2>
+                <p className="text-gray-600 mb-6">
+                  Start by adding products to your store. Customers will be able to discover and purchase your surplus food items.
+                </p>
+                <Link
+                  to="/marketplace"
+                  className="inline-flex items-center px-6 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition"
+                >
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  Add Your First Product
+                </Link>
+                <p className="text-sm text-gray-500 mt-4">
+                  (Product management coming soon)
+                </p>
+              </>
+            )}
           </div>
         </div>
       </motion.div>

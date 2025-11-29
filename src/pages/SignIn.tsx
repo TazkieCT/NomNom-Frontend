@@ -1,5 +1,5 @@
-import { useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import { useState, useEffect } from "react"
+import { Link, useNavigate, useLocation } from "react-router-dom"
 import { motion } from "framer-motion"
 import { useAuth } from "../contexts/AuthContext"
 
@@ -10,8 +10,17 @@ export default function SignIn() {
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+  const [successMessage, setSuccessMessage] = useState("")
   const navigate = useNavigate()
+  const location = useLocation()
   const { login } = useAuth()
+
+  useEffect(() => {
+    if (location.state?.message) {
+      setSuccessMessage(location.state.message)
+      window.history.replaceState({}, document.title)
+    }
+  }, [location])
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()
@@ -55,6 +64,12 @@ export default function SignIn() {
           <h1 className="text-2xl font-extrabold">Welcome back</h1>
           <p className="mt-2 text-sm text-gray-600">Sign in to claim deals and manage your vouchers.</p>
         </div>
+
+        {successMessage && (
+          <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+            <p className="text-sm text-green-600">{successMessage}</p>
+          </div>
+        )}
 
         {error && (
           <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">

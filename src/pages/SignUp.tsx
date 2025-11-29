@@ -49,10 +49,9 @@ export default function SignUp() {
         throw new Error(data.error || 'Registration failed')
       }
 
-      localStorage.setItem('token', data.token)
-      localStorage.setItem('user', JSON.stringify(data.user))
-      
-      navigate('/signin')
+      navigate('/signin', { 
+        state: { message: 'Account created successfully! Please sign in.' } 
+      })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {

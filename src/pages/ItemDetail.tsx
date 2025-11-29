@@ -1,35 +1,164 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useParams, useNavigate, Link } from "react-router-dom"
 import { motion } from "framer-motion"
 import { 
-  MapPin, 
-  Clock, 
-  Star, 
-  TrendingUp, 
   ArrowLeft, 
   Heart,
   Share2,
-  Calendar,
   CheckCircle2,
   Info,
   Store,
-  Sparkles
+  Sparkles,
+  Star,
+  ShoppingCart
 } from "lucide-react"
-import { SAMPLE_DEALS } from "../data/sampleDeals"
+import { useAuth } from "../contexts/AuthContext"
+import StoreMap from "../components/StoreMap"
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api'
+
+interface Food {
+  _id: string
+  name: string
+  description: string
+  price: number
+  isAvailable: boolean
+  images: string[]
+  categoryId: { _id: string; name: string }
+  storeId: { 
+    _id: string
+    name: string
+    address: string
+    mapsLink?: string
+    openHours: string
+  }
+  filters: { _id: string; name: string }[]
+}
 
 export default function ItemDetail() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const { user } = useAuth()
   const [isFavorited, setIsFavorited] = useState(false)
   const [quantity, setQuantity] = useState(1)
+  const [food, setFood] = useState<Food | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [similarFoods, setSimilarFoods] = useState<Food[]>([])
+  const [orderLoading, setOrderLoading] = useState(false)
+  const [error, setError] = useState("")
+  const [successMessage, setSuccessMessage] = useState("")
+  const [copied, setCopied] = useState(false)
 
-  const deal = SAMPLE_DEALS.find(d => d.id === id)
+  useEffect(() => {
+    async function fetchFood() {
+      try {
+        const response = await fetch(`${API_URL}/foods/${id}`)
+        if (response.ok) {
+          const data = await response.json()
+          setFood(data)
+          
+          const similarRes = await fetch(`${API_URL}/foods`)
+          if (similarRes.ok) {
+            const allFoods = await similarRes.json()
+            const similar = allFoods
+              .filter((f: Food) => 
+                f._id !== id && 
+                f.categoryId._id === data.categoryId._id && 
+                f.isAvailable
+              )
+              .slice(0, 4)
+            setSimilarFoods(similar)
+          }
+        } else {
+          setError("Food item not found")
+        }
+      } catch (error) {
+        console.error('Error fetching food:', error)
+        setError("Failed to load food item")
+      } finally {
+        setLoading(false)
+      }
+    }
 
-  if (!deal) {
+    fetchFood()
+  }, [id])
+
+  const handleOrder = async () => {
+    if (!user) {
+      navigate('/signin', { state: { from: `/deal/${id}` } })
+      return
+    }
+
+    if (user.role !== 'customer') {
+      setError("Only customers can place orders")
+      return
+    }
+
+    if (!food) return
+
+    setOrderLoading(true)
+    setError("")
+
+    try {
+      const token = localStorage.getItem('token')
+      const response = await fetch(`${API_URL}/orders`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          storeId: food.storeId._id,
+          items: [{
+            foodId: food._id,
+            quantity
+          }]
+        })
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        setSuccessMessage("Order placed successfully!")
+        setTimeout(() => {
+          navigate('/orders')
+        }, 2000)
+      } else {
+        setError(data.message || 'Failed to place order')
+      }
+    } catch (error) {
+      setError('An error occurred. Please try again.')
+    } finally {
+      setOrderLoading(false)
+    }
+  }
+
+  const handleShare = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch (error) {
+      console.error('Failed to copy link:', error)
+    }
+  }
+
+  if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Deal not found</h2>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-red-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error && !food) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Food item not found</h2>
           <Link to="/marketplace" className="text-red-600 hover:text-red-700 font-semibold">
             Back to Marketplace
           </Link>
@@ -38,19 +167,9 @@ export default function ItemDetail() {
     )
   }
 
-  const discountPercentage = deal.original 
-    ? Math.round((1 - parseFloat(deal.price.replace("$", "")) / parseFloat(deal.original.replace("$", ""))) * 100)
-    : 0
+  if (!food) return null
 
-  const handleShare = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: deal.title,
-        text: `Check out this deal: ${deal.title} at ${deal.vendor}`,
-        url: window.location.href,
-      })
-    }
-  }
+  const totalPrice = food.price * quantity
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -67,28 +186,45 @@ export default function ItemDetail() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-        <div className="grid lg:grid-cols-2 gap-12">
+        {successMessage && (
+          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <p className="text-sm text-green-600">{successMessage}</p>
+          </div>
+        )}
+
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-sm text-red-600">{error}</p>
+          </div>
+        )}
+
+        <div className="grid lg:grid-cols-5 gap-12">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
+            className="lg:col-span-2"
           >
             <div className="relative">
-              <div className="aspect-square bg-gradient-to-br from-gray-100 to-gray-200 rounded-3xl overflow-hidden shadow-xl">
-                <div className="absolute inset-0 flex items-center justify-center text-gray-400 font-bold text-2xl text-center px-8">
-                  {deal.title}
-                </div>
-
-                {deal.original && (
-                  <div className="absolute top-6 left-6 bg-red-600 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
-                    {discountPercentage}% OFF
+              <div className="aspect-video bg-linear-to-br from-gray-100 to-gray-200 rounded-3xl overflow-hidden shadow-xl">
+                {food.images && food.images.length > 0 && food.images[0] ? (
+                  <img
+                    src={food.images[0]}
+                    alt={food.name}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none'
+                    }}
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center text-gray-400 font-bold text-2xl text-center px-8">
+                    {food.name}
                   </div>
                 )}
 
-                {deal.sold && deal.sold > 10 && (
-                  <div className="absolute top-6 right-6 bg-black/70 backdrop-blur-sm text-white px-3 py-2 rounded-full text-sm font-semibold flex items-center gap-2">
-                    <TrendingUp className="w-4 h-4" />
-                    {deal.sold} sold today
+                {!food.isAvailable && (
+                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                    <span className="text-white font-bold text-2xl">Currently Unavailable</span>
                   </div>
                 )}
               </div>
@@ -107,9 +243,14 @@ export default function ItemDetail() {
                 </button>
                 <button
                   onClick={handleShare}
-                  className="py-3 px-6 bg-white border-2 border-gray-200 rounded-xl hover:border-gray-300 transition-all font-semibold text-gray-700"
+                  className={`py-3 px-6 border-2 rounded-xl transition-all font-semibold ${
+                    copied 
+                      ? 'bg-green-50 border-green-600 text-green-600'
+                      : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300'
+                  }`}
                 >
-                  <Share2 className="w-5 h-5 inline-block" />
+                  <Share2 className="w-5 h-5 inline-block mr-2" />
+                  {copied ? 'Copied!' : 'Share'}
                 </button>
               </div>
             </div>
@@ -119,54 +260,44 @@ export default function ItemDetail() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
+            className="lg:col-span-3"
           >
-            {deal.category && (
-              <div className="inline-flex items-center gap-2 mb-4">
-                <Sparkles className="w-4 h-4 text-red-600" />
-                <span className="text-sm font-semibold text-red-600 uppercase tracking-wider">
-                  {deal.category}
-                </span>
-              </div>
-            )}
+            <div className="inline-flex items-center gap-2 mb-4">
+              <Sparkles className="w-4 h-4 text-red-600" />
+              <span className="text-sm font-semibold text-red-600 uppercase tracking-wider">
+                {food.categoryId.name}
+              </span>
+            </div>
 
             <h1 className="text-4xl md:text-5xl font-black text-gray-900 mb-3 leading-tight">
-              {deal.title}
+              {food.name}
             </h1>
             
             <div className="flex items-center gap-2 mb-6">
               <Store className="w-5 h-5 text-gray-500" />
-              <span className="text-xl text-gray-600 font-semibold">{deal.vendor}</span>
+              <span className="text-xl text-gray-600 font-semibold">{food.storeId.name}</span>
             </div>
 
-            <div className="flex items-center gap-6 mb-8 pb-8 border-b border-gray-200">
-              {deal.rating && (
-                <div className="flex items-center gap-2">
-                  <Star className="w-5 h-5 fill-amber-400 text-amber-400" />
-                  <span className="text-lg font-bold text-gray-900">{deal.rating}</span>
-                  <span className="text-gray-500 text-sm">(120+ reviews)</span>
-                </div>
-              )}
-              {deal.distance && (
-                <div className="flex items-center gap-2 text-gray-600">
-                  <MapPin className="w-4 h-4" />
-                  <span className="font-medium">{deal.distance}</span>
-                </div>
-              )}
+            <div className="flex items-center gap-1 mb-6 pb-6 border-b border-gray-200 text-sm text-gray-600">
+              <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+              <span className="font-semibold">4.5</span>
+              <span className="text-gray-500">(120 reviews)</span>
             </div>
 
-            <div className="bg-gray-50 rounded-2xl p-6 mb-6">
+            {food.description && (
+              <div className="mb-6">
+                <h3 className="font-bold text-gray-900 mb-2">Description</h3>
+                <p className="text-gray-700 leading-relaxed">{food.description}</p>
+              </div>
+            )}
+
+            <div className="bg-gray-50 rounded-2xl py-6 mb-6">
               <div className="flex items-end justify-between mb-6">
                 <div>
-                  <div className="text-sm text-gray-500 mb-1">Deal Price</div>
-                  <div className="text-5xl font-black text-gray-900">{deal.price}</div>
-                  {deal.original && (
-                    <div className="flex items-center gap-3 mt-2">
-                      <div className="text-xl line-through text-gray-400">{deal.original}</div>
-                      <div className="text-green-600 font-bold text-sm">
-                        Save ${(parseFloat(deal.original.replace("$", "")) - parseFloat(deal.price.replace("$", ""))).toFixed(2)}
-                      </div>
-                    </div>
-                  )}
+                  <div className="text-sm text-gray-500 mb-1">Price</div>
+                  <div className="text-3xl font-black text-gray-900">
+                    Rp {food.price.toLocaleString('id-ID')}
+                  </div>
                 </div>
 
                 <div className="flex items-center gap-3">
@@ -178,7 +309,7 @@ export default function ItemDetail() {
                   </button>
                   <span className="text-xl font-bold w-8 text-center">{quantity}</span>
                   <button
-                    onClick={() => setQuantity(Math.min(5, quantity + 1))}
+                    onClick={() => setQuantity(Math.min(10, quantity + 1))}
                     className="w-10 h-10 rounded-lg bg-white border-2 cursor-pointer border-gray-300 font-bold hover:border-gray-400 transition-colors"
                   >
                     +
@@ -186,112 +317,127 @@ export default function ItemDetail() {
                 </div>
               </div>
 
-              <button className="w-full py-4 bg-red-600 cursor-pointer text-white rounded-xl font-bold text-lg hover:bg-red-700 transition-all shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]">
-                Claim Deal · ${(parseFloat(deal.price.replace("$", "")) * quantity).toFixed(2)}
+              <button 
+                onClick={handleOrder}
+                disabled={!food.isAvailable || orderLoading}
+                className="w-full py-4 bg-red-600 cursor-pointer text-white rounded-xl font-bold text-lg hover:bg-red-700 transition-all shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                <ShoppingCart className="w-5 h-5" />
+                {orderLoading ? 'Processing...' : `Order Now · Rp ${totalPrice.toLocaleString('id-ID')}`}
               </button>
             </div>
 
             <div className="space-y-3 mb-8">
               <div className="flex items-center gap-3 p-4 bg-white rounded-xl border border-gray-200">
                 <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
-                  <Clock className="w-5 h-5 text-green-600" />
+                  <CheckCircle2 className="w-5 h-5 text-green-600" />
                 </div>
                 <div>
-                  <div className="font-semibold text-gray-900">Pickup Time</div>
-                  <div className="text-sm text-gray-600">{deal.eta}</div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3 p-4 bg-white rounded-xl border border-gray-200">
-                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                  <Calendar className="w-5 h-5 text-blue-600" />
-                </div>
-                <div>
-                  <div className="font-semibold text-gray-900">Valid Until</div>
-                  <div className="text-sm text-gray-600">Today at 11:59 PM</div>
+                  <div className="font-semibold text-gray-900">Fresh & Quality</div>
+                  <div className="text-sm text-gray-600">Guaranteed fresh food</div>
                 </div>
               </div>
 
               <div className="flex items-center gap-3 p-4 bg-white rounded-xl border border-gray-200">
                 <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
-                  <CheckCircle2 className="w-5 h-5 text-purple-600" />
+                  <Store className="w-5 h-5 text-purple-600" />
                 </div>
                 <div>
-                  <div className="font-semibold text-gray-900">Guarantee</div>
-                  <div className="text-sm text-gray-600">Full refund if not satisfied</div>
+                  <div className="font-semibold text-gray-900">Opening Hours</div>
+                  <div className="text-sm text-gray-600">{food.storeId.openHours}</div>
                 </div>
               </div>
             </div>
 
-            {deal.tags && deal.tags.length > 0 && (
+            {food.filters && food.filters.length > 0 && (
               <div className="mb-8">
-                <h3 className="font-bold text-gray-900 mb-3">Tags</h3>
+                <h3 className="font-bold text-gray-900 mb-3">Dietary Information</h3>
                 <div className="flex flex-wrap gap-2">
-                  {deal.tags.map(tag => (
+                  {food.filters.map(filter => (
                     <span
-                      key={tag}
-                      className="px-4 py-2 bg-white border-2 cursor-pointer border-gray-200 rounded-full text-sm font-semibold text-gray-700 hover:border-red-600 hover:text-red-600 transition-colors"
+                      key={filter._id}
+                      className="px-4 py-2 bg-green-50 border-2 border-green-200 rounded-full text-sm font-semibold text-green-700"
                     >
-                      #{tag}
+                      {filter.name}
                     </span>
                   ))}
                 </div>
               </div>
             )}
 
-            <div className="bg-blue-50 border-2 border-blue-200 rounded-2xl p-6">
+            <div className="bg-blue-50 border-2 border-blue-200 rounded-2xl p-6 mb-8">
               <div className="flex items-start gap-3">
-                <Info className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                <Info className="w-5 h-5 text-blue-600 mt-0.5 shrink-0" />
                 <div>
-                  <h4 className="font-bold text-gray-900 mb-2">About this deal</h4>
+                  <h4 className="font-bold text-gray-900 mb-2">About this offer</h4>
                   <p className="text-sm text-gray-700 leading-relaxed">
-                    This is a limited-time offer to help reduce food waste. By claiming this deal, 
-                    you're getting a great meal at an amazing price while supporting local businesses 
-                    and helping the environment. All food is freshly prepared and guaranteed quality.
+                    This is a fresh food item from {food.storeId.name}. By ordering this, 
+                    you're getting a great meal while supporting local businesses. 
+                    All food is freshly prepared and guaranteed quality.
                   </p>
                 </div>
               </div>
             </div>
+
+            <div>
+              <h3 className="font-bold text-gray-900 mb-3">Store Location</h3>
+              <div className="bg-white rounded-xl p-4 border border-gray-200 mb-4">
+                <p className="text-gray-700 mb-2">{food.storeId.address}</p>
+              </div>
+              <StoreMap 
+                mapsLink={food.storeId.mapsLink} 
+                storeName={food.storeId.name}
+                address={food.storeId.address}
+              />
+            </div>
           </motion.div>
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-          className="mt-16 pt-16 border-t border-gray-200"
-        >
-          <h2 className="text-3xl font-black text-gray-900 mb-8">Similar Deals</h2>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {SAMPLE_DEALS.filter(d => d.id !== id && d.category === deal.category)
-              .slice(0, 4)
-              .map(similarDeal => (
+        {similarFoods.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="mt-16 pt-16 border-t border-gray-200"
+          >
+            <h2 className="text-3xl font-black text-gray-900 mb-8">Similar Items</h2>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {similarFoods.map(similarFood => (
                 <Link
-                  key={similarDeal.id}
-                  to={`/deal/${similarDeal.id}`}
+                  key={similarFood._id}
+                  to={`/deal/${similarFood._id}`}
                   className="bg-white rounded-xl overflow-hidden border border-gray-100 hover:shadow-lg transition-all group"
                 >
                   <div className="relative h-40 bg-gray-100">
-                    <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-sm font-medium text-center px-4">
-                      {similarDeal.title}
-                    </div>
+                    {similarFood.images && similarFood.images[0] ? (
+                      <img
+                        src={similarFood.images[0]}
+                        alt={similarFood.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none'
+                        }}
+                      />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-sm font-medium text-center px-4">
+                        {similarFood.name}
+                      </div>
+                    )}
                   </div>
                   <div className="p-4">
-                    <h3 className="font-bold text-gray-900 mb-1 group-hover:text-red-600 transition">
-                      {similarDeal.title}
+                    <h3 className="font-bold text-gray-900 mb-1 group-hover:text-red-600 transition line-clamp-1">
+                      {similarFood.name}
                     </h3>
-                    <p className="text-sm text-gray-600 mb-2">{similarDeal.vendor}</p>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xl font-bold text-gray-900">{similarDeal.price}</span>
-                      {similarDeal.original && (
-                        <span className="text-sm line-through text-gray-400">{similarDeal.original}</span>
-                      )}
-                    </div>
+                    <p className="text-sm text-gray-600 mb-2">{similarFood.storeId.name}</p>
+                    <span className="text-xl font-bold text-gray-900">
+                      Rp {similarFood.price.toLocaleString('id-ID')}
+                    </span>
                   </div>
                 </Link>
               ))}
-          </div>
-        </motion.div>
+            </div>
+          </motion.div>
+        )}
       </div>
     </div>
   )

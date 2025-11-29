@@ -16,6 +16,7 @@ import Dashboard from './pages/Dashboard'
 import AddProduct from './pages/AddProduct'
 import EditProduct from './pages/EditProduct'
 import ManageProducts from './pages/ManageProducts'
+import Orders from './pages/Orders'
 import Header from './components/header'
 import Footer from './components/footer'
 
@@ -44,6 +45,7 @@ function App() {
             <Route path="/manage-products" element={<PrivateRoute><ManageProducts /></PrivateRoute>} />
             <Route path="/add-product" element={<PrivateRoute><AddProduct /></PrivateRoute>} />
             <Route path="/edit-product/:id" element={<PrivateRoute><EditProduct /></PrivateRoute>} />
+            <Route path="/orders" element={<PrivateRoute><Orders /></PrivateRoute>} />
             
             <Route path="*" element={<NotFound />} />
           </Routes>

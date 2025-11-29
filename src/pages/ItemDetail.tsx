@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useParams, useNavigate, Link } from "react-router-dom"
 import { motion } from "framer-motion"
 import { 
@@ -16,6 +16,17 @@ import { useAuth } from "../contexts/AuthContext"
 import StoreMap from "../components/StoreMap"
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api'
+
+interface Review {
+  _id: string
+  customerId: {
+    _id: string
+    username: string
+  }
+  rating: number
+  comment: string
+  createdAt: string
+}
 
 interface Food {
   _id: string
@@ -50,6 +61,9 @@ export default function ItemDetail() {
   const [error, setError] = useState("")
   const [successMessage, setSuccessMessage] = useState("")
   const [copied, setCopied] = useState(false)
+  const [reviews, setReviews] = useState<Review[]>([])
+  const [reviewsLoading, setReviewsLoading] = useState(false)
+  const [ratingFilter, setRatingFilter] = useState<number | 'all'>('all')
 
   useEffect(() => {
     async function fetchFood() {
@@ -82,8 +96,29 @@ export default function ItemDetail() {
       }
     }
 
+    async function fetchReviews() {
+      setReviewsLoading(true)
+      try {
+        const response = await fetch(`${API_URL}/reviews/food/${id}`)
+        if (response.ok) {
+          const data = await response.json()
+          setReviews(data.reviews)
+        }
+      } catch (error) {
+        console.error('Error fetching reviews:', error)
+      } finally {
+        setReviewsLoading(false)
+      }
+    }
+
     fetchFood()
+    fetchReviews()
   }, [id])
+
+  const filteredReviews = useMemo(() => {
+    if (ratingFilter === 'all') return reviews
+    return reviews.filter(review => review.rating === ratingFilter)
+  }, [reviews, ratingFilter])
 
   const handleOrder = async () => {
     if (!user) {
@@ -399,11 +434,125 @@ export default function ItemDetail() {
           </motion.div>
         </div>
 
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="mt-16 pt-16 border-t border-gray-200"
+        >
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-3xl font-black text-gray-900">Customer Reviews</h2>
+            {food.totalReviews > 0 && (
+              <div className="flex items-center gap-2">
+                <Star className="w-5 h-5 fill-amber-400 text-amber-400" />
+                <span className="text-2xl font-bold text-gray-900">{food.averageRating}</span>
+                <span className="text-gray-600">/ 5</span>
+              </div>
+            )}
+          </div>
+
+          {reviews.length > 0 && (
+            <div className="mb-6">
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => setRatingFilter('all')}
+                  className={`px-4 py-2 rounded-lg font-semibold text-sm transition-colors ${
+                    ratingFilter === 'all'
+                      ? 'bg-red-600 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  All ({reviews.length})
+                </button>
+                {[5, 4, 3, 2, 1].map((rating) => {
+                  const count = reviews.filter(r => r.rating === rating).length
+                  return (
+                    <button
+                      key={rating}
+                      onClick={() => setRatingFilter(rating)}
+                      disabled={count === 0}
+                      className={`px-4 py-2 rounded-lg font-semibold text-sm transition-colors flex items-center gap-1 ${
+                        ratingFilter === rating
+                          ? 'bg-amber-600 text-white'
+                          : count === 0
+                          ? 'bg-gray-50 text-gray-400 cursor-not-allowed'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      <Star className={`w-3.5 h-3.5 ${
+                        ratingFilter === rating || count > 0 ? 'fill-current' : ''
+                      }`} />
+                      {rating} ({count})
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+          {reviewsLoading ? (
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading reviews...</p>
+            </div>
+          ) : reviews.length === 0 ? (
+            <div className="bg-gray-50 rounded-2xl p-12 text-center">
+              <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Star className="w-8 h-8 text-gray-400" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">No reviews yet</h3>
+              <p className="text-gray-600">Be the first to review this food item!</p>
+            </div>
+          ) : filteredReviews.length === 0 ? (
+            <div className="bg-gray-50 rounded-2xl p-12 text-center">
+              <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Star className="w-8 h-8 text-gray-400" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">No {ratingFilter}-star reviews</h3>
+              <p className="text-gray-600">Try selecting a different rating filter.</p>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {filteredReviews.map((review) => (
+                <div
+                  key={review._id}
+                  className="bg-white rounded-2xl p-6 border border-gray-200 hover:shadow-md transition-shadow"
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 bg-linear-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                        {review.customerId.username.charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-gray-900">{review.customerId.username}</h4>
+                        <p className="text-sm text-gray-500">
+                          {new Date(review.createdAt).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          })}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1 bg-amber-50 px-3 py-1.5 rounded-full border border-amber-200">
+                      <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                      <span className="font-bold text-amber-700">{review.rating}</span>
+                    </div>
+                  </div>
+                  {review.comment && (
+                    <p className="text-gray-700 leading-relaxed">{review.comment}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </motion.div>
+
         {similarFoods.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
             className="mt-16 pt-16 border-t border-gray-200"
           >
             <h2 className="text-3xl font-black text-gray-900 mb-8">Similar Items</h2>

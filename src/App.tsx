@@ -18,6 +18,7 @@ import EditProduct from './pages/EditProduct'
 import ManageProducts from './pages/ManageProducts'
 import Orders from './pages/Orders'
 import SellerOrders from './pages/SellerOrders'
+import Profile from './pages/Profile'
 import Header from './components/header'
 import Footer from './components/footer'
 
@@ -40,6 +41,7 @@ function App() {
             <Route path="/signup" element={<GuestRoute><SignUp /></GuestRoute>} />
             
             {/* Protected routes */}
+            <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
             <Route path="/become-seller" element={<PrivateRoute><BecomeSeller /></PrivateRoute>} />
             <Route path="/create-store" element={<PrivateRoute><CreateStore /></PrivateRoute>} />
             <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />

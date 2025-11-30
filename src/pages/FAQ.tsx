@@ -163,7 +163,7 @@ export default function FAQ() {
             </p>
             <a
               href="mailto:support@nomnom.example"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-red-600 text-white rounded-full hover:bg-red-700 transition-all font-semibold shadow-lg hover:shadow-xl"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all font-semibold shadow-lg hover:shadow-xl"
             >
               Contact Support
             </a>

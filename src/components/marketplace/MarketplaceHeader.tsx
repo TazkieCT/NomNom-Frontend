@@ -49,7 +49,6 @@ export default function MarketplaceHeader({
               <option value="popular">Most Popular</option>
               <option value="price-low">Price: Low to High</option>
               <option value="price-high">Price: High to Low</option>
-              <option value="distance">Nearest First</option>
               <option value="rating">Highest Rated</option>
             </select>
 

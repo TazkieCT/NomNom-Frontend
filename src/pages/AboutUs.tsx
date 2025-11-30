@@ -54,17 +54,17 @@ export default function AboutUs() {
               <div className="flex flex-wrap gap-4">
                 <Link
                   to="/marketplace"
-                  className="group inline-flex items-center gap-2 px-7 py-4 bg-red-600 text-white rounded-full hover:bg-red-700 transition-all font-bold shadow-lg hover:shadow-xl"
+                  className="group inline-flex items-center gap-2 px-7 py-4 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all font-bold shadow-lg hover:shadow-xl"
                 >
                   Explore Deals
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Link>
-                <a
-                  href="#partner"
-                  className="inline-flex items-center gap-2 px-7 py-4 bg-gray-100 text-gray-900 rounded-full hover:bg-gray-200 transition-all font-bold"
+                <Link
+                  to="/become-seller"
+                  className="inline-flex items-center gap-2 px-7 py-4 bg-gray-100 text-gray-900 rounded-lg hover:bg-gray-200 transition-all font-bold"
                 >
                   Become a Partner
-                </a>
+                </Link>
               </div>
             </motion.div>
 
@@ -220,8 +220,8 @@ export default function AboutUs() {
             </h2>
             
             <Link
-              to="/signup"
-              className="inline-flex items-center gap-3 px-10 py-5 bg-red-600 text-white rounded-full hover:bg-red-700 transition-all font-bold text-xl shadow-2xl hover:shadow-3xl"
+              to="/marketplace"
+              className="inline-flex items-center gap-3 px-10 py-5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all font-bold text-xl shadow-2xl hover:shadow-3xl"
             >
               Get Started Now
               <ArrowRight className="w-6 h-6" />

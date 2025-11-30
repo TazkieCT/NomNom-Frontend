@@ -168,7 +168,7 @@ export default function BecomeSeller() {
             <button
               onClick={handleApply}
               disabled={loading}
-              className="w-full md:w-auto px-8 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full md:w-auto px-8 py-3 bg-red-600 cursor-pointer text-white rounded-lg font-semibold hover:bg-red-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? "Upgrading Account..." : "Upgrade to Seller Account"}
             </button>

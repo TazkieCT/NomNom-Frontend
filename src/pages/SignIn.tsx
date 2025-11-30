@@ -120,15 +120,6 @@ export default function SignIn() {
           New to NomNom?{' '}
           <Link to="/signup" className="text-red-600 font-medium hover:underline">Create an account</Link>
         </div>
-
-        <div className="mt-6 border-t pt-4">
-          <p className="text-xs text-gray-500">Or continue with</p>
-          <div className="mt-3 grid grid-cols-3 gap-3">
-            <button aria-label="Continue with Google" className="px-3 py-2 bg-white rounded-lg shadow-sm text-sm">Google</button>
-            <button aria-label="Continue with Apple" className="px-3 py-2 bg-white rounded-lg shadow-sm text-sm">Apple</button>
-            <button aria-label="Continue with Facebook" className="px-3 py-2 bg-white rounded-lg shadow-sm text-sm">Facebook</button>
-          </div>
-        </div>
       </motion.section>
     </main>
   )

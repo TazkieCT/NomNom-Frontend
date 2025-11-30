@@ -22,7 +22,6 @@ export default function ManageProducts() {
   const [successMessage, setSuccessMessage] = useState("")
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
   const location = useLocation()
-  const { user } = useAuth()
 
   useEffect(() => {
     if (location.state?.message) {

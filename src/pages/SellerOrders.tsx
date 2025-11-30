@@ -5,8 +5,7 @@ import {
   ShoppingBag, 
   Clock, 
   CheckCircle2, 
-  XCircle, 
-  Store,
+  XCircle,
   Calendar,
   User,
   Package

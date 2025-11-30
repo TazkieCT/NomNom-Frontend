@@ -1,6 +1,5 @@
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { HelpCircle } from "lucide-react"
 
 type FAQItem = {
   question: string

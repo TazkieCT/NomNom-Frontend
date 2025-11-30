@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom"
 import { motion } from "framer-motion"
-import { Users, Store, Leaf, ArrowRight, Sparkles } from "lucide-react"
+import { Users, Store, Leaf, ArrowRight } from "lucide-react"
 
 export default function AboutUs() {
   const stats = [

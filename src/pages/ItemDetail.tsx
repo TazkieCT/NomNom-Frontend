@@ -456,7 +456,7 @@ export default function ItemDetail() {
               <div className="flex flex-wrap gap-2">
                 <button
                   onClick={() => setRatingFilter('all')}
-                  className={`px-4 py-2 rounded-lg font-semibold text-sm transition-colors ${
+                  className={`px-4 py-2 rounded-lg cursor-pointer font-semibold text-sm transition-colors ${
                     ratingFilter === 'all'
                       ? 'bg-red-600 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -471,7 +471,7 @@ export default function ItemDetail() {
                       key={rating}
                       onClick={() => setRatingFilter(rating)}
                       disabled={count === 0}
-                      className={`px-4 py-2 rounded-lg font-semibold text-sm transition-colors flex items-center gap-1 ${
+                      className={`px-4 py-2 rounded-lg cursor-pointer font-semibold text-sm transition-colors flex items-center gap-1 ${
                         ratingFilter === rating
                           ? 'bg-amber-600 text-white'
                           : count === 0

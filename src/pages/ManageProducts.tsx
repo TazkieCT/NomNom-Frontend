@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react"
 import { Link, useLocation } from "react-router-dom"
 import { motion } from "framer-motion"
-import { useAuth } from "../contexts/AuthContext"
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api'
 

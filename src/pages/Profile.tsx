@@ -97,8 +97,11 @@ export default function Profile() {
           confirmPassword: ''
         }))
       }
-    } catch (error: any) {
-      setMessage({ type: 'error', text: error.message || 'Failed to update profile' })
+    } catch (error) {
+      setMessage({ 
+        type: 'error', 
+        text: error instanceof Error ? error.message : 'Failed to update profile' 
+      })
     } finally {
       setLoading(false)
     }

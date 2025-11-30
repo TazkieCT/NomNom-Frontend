@@ -4,6 +4,16 @@ import { useAuth } from '../contexts/AuthContext'
 import { api } from '../utils/api'
 import { User, Mail, Shield, CheckCircle, AlertCircle } from 'lucide-react'
 
+interface UpdateProfileResponse {
+  message: string
+  user: {
+    id: string
+    username: string
+    email: string
+    role: 'customer' | 'seller'
+  }
+}
+
 export default function Profile() {
   const { user, updateUser } = useAuth()
   const [isEditing, setIsEditing] = useState(false)
@@ -59,7 +69,12 @@ export default function Profile() {
         }
       }
 
-      const updatePayload: any = {
+      const updatePayload: {
+        username: string
+        email: string
+        currentPassword?: string
+        newPassword?: string
+      } = {
         username: formData.username,
         email: formData.email
       }
@@ -69,7 +84,7 @@ export default function Profile() {
         updatePayload.newPassword = formData.newPassword
       }
 
-      const response = await api.put('/auth/profile', updatePayload, true)
+      const response = await api.put<UpdateProfileResponse>('/auth/profile', updatePayload, true)
       
       if (response.user) {
         updateUser(response.user)

@@ -162,7 +162,7 @@ export default function FAQ() {
               Our support team is here to help you with any inquiries
             </p>
             <a
-              href="mailto:support@nomnom.example"
+              href="mailto:innerjtct@gmail.com"
               className="inline-flex items-center gap-2 px-8 py-4 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all font-semibold shadow-lg hover:shadow-xl"
             >
               Contact Support

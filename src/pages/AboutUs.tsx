@@ -206,7 +206,7 @@ export default function AboutUs() {
         </div>
       </section>
 
-      <section className="py-24 bg-gray-50">
+      <section className="py-24">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

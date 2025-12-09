@@ -233,7 +233,7 @@ export default function EditProduct() {
             <div className="grid md:grid-cols-2 gap-6">
               <div>
                 <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-2">
-                  Price ($) *
+                  Price (Rp) *
                 </label>
                 <input
                   type="number"

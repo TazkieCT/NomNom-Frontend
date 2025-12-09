@@ -230,7 +230,7 @@ export default function ManageProducts() {
 
                   <div className="flex items-center justify-between mb-4">
                     <span className="text-2xl font-bold text-red-600">
-                      ${food.price.toFixed(2)}
+                      Rp {food.price}
                     </span>
                   </div>
 

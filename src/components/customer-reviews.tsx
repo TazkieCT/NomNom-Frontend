@@ -33,15 +33,18 @@ export default function CustomerReviews() {
       if (response.ok) {
         const data = await response.json()
         // Transform API ratings to match Review interface
-        const transformedReviews = data.ratings.map((rating: any) => ({
-          _id: rating._id,
-          name: rating.customerId?.username || 'Anonymous',
-          location: 'Customer',
-          rating: rating.rating,
-          review: rating.comment || 'No comment provided',
-          avatar: rating.customerId?.username?.substring(0, 2).toUpperCase() || 'AN',
-          date: getRelativeTime(rating.createdAt)
-        }))
+        // Only show 5-star ratings with non-empty comments
+        const transformedReviews = data.ratings
+          .filter((rating: any) => rating.rating === 5 && rating.comment && rating.comment.trim() !== '')
+          .map((rating: any) => ({
+            _id: rating._id,
+            name: rating.customerId?.username || 'Anonymous',
+            location: 'Customer',
+            rating: rating.rating,
+            review: rating.comment,
+            avatar: rating.customerId?.username?.substring(0, 2).toUpperCase() || 'AN',
+            date: getRelativeTime(rating.createdAt)
+          }))
         
         setReviews(transformedReviews.length > 0 ? transformedReviews : getFallbackReviews())
       } else {

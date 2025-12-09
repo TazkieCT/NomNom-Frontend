@@ -16,7 +16,7 @@ export default function RatingTab() {
   const { user } = useAuth()
 
   useEffect(() => {
-    if (isOpen && user?.role === 'customer') {
+    if (isOpen && user) {
       fetchMyRating()
     }
   }, [isOpen, user])
@@ -50,12 +50,6 @@ export default function RatingTab() {
     
     if (!user) {
       setMessage({ type: 'error', text: 'Please sign in to rate the app' })
-      setTimeout(() => setMessage(null), 3000)
-      return
-    }
-
-    if (user.role !== 'customer') {
-      setMessage({ type: 'error', text: 'Only customers can rate the app' })
       setTimeout(() => setMessage(null), 3000)
       return
     }
@@ -117,11 +111,9 @@ export default function RatingTab() {
         <MessageSquare className="w-6 h-6" />
       </motion.button>
 
-      {/* Rating Panel */}
       <AnimatePresence>
         {isOpen && (
           <>
-            {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -130,7 +122,6 @@ export default function RatingTab() {
               className="fixed inset-0 bg-black/50 z-40 backdrop-blur-sm"
             />
 
-            {/* Panel */}
             <motion.div
               initial={{ y: "100%", opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
@@ -158,7 +149,6 @@ export default function RatingTab() {
                   </button>
                 </div>
 
-                {/* Rating Status Message */}
                 {existingRating && (
                   <div className={`mb-4 p-3 rounded-lg ${
                     existingRating.isApproved 
@@ -175,7 +165,6 @@ export default function RatingTab() {
                   </div>
                 )}
 
-                {/* Message */}
                 {message && (
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}

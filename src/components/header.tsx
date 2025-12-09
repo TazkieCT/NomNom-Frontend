@@ -107,7 +107,8 @@ export default function Header() {
                           </svg>
                           Profile
                         </Link>
-
+                        
+                        {user.role === 'customer' && (
                         <Link
                           to="/orders"
                           onClick={() => setDropdownOpen(false)}
@@ -118,6 +119,7 @@ export default function Header() {
                           </svg>
                           My Orders
                         </Link>
+                        )}
 
                         {user.role === 'customer' && (
                           <Link

@@ -162,16 +162,15 @@ export default function Dashboard() {
             if (order.items && Array.isArray(order.items)) {
               order.items.forEach((item: any) => {
                 const food = item.foodId
-                if (food && food.category) {
-                  const categoryId = typeof food.category === 'string' 
-                    ? food.category 
-                    : food.category._id || food.category
+                if (food && food.categoryId) {
+                  // Access categoryId which should be populated
+                  const categoryId = typeof food.categoryId === 'string' 
+                    ? food.categoryId 
+                    : food.categoryId._id
                   
-                  let categoryName = categoryNames.get(categoryId)
-                  
-                  if (!categoryName && typeof food.category === 'object' && food.category.name) {
-                    categoryName = food.category.name
-                  }
+                  const categoryName = typeof food.categoryId === 'object' && food.categoryId.name
+                    ? food.categoryId.name
+                    : categoryNames.get(categoryId)
                   
                   if (categoryName) {
                     categoryCount[categoryName as string] = (categoryCount[categoryName as string] || 0) + (item.quantity || 1)

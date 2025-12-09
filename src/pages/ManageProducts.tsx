@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Link, useLocation } from "react-router-dom"
+import { Link, useLocation, useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api'
@@ -21,6 +21,7 @@ export default function ManageProducts() {
   const [successMessage, setSuccessMessage] = useState("")
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
   const location = useLocation()
+  const navigate = useNavigate()
 
   useEffect(() => {
     if (location.state?.message) {
@@ -115,24 +116,35 @@ export default function ManageProducts() {
         transition={{ duration: 0.45 }}
         className="max-w-7xl mx-auto"
       >
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-extrabold text-gray-900 mb-2">
-              Manage Products
-            </h1>
-            <p className="text-gray-600">
-              View, edit, and manage your food items
-            </p>
-          </div>
-          <Link
-            to="/add-product"
-            className="inline-flex items-center px-6 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition"
+        <div className="mb-8">
+          <button
+            onClick={() => navigate(-1)}
+            className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-4 transition"
           >
             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
-            Add Product
-          </Link>
+            Back
+          </button>
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-3xl font-extrabold text-gray-900 mb-2">
+                Manage Products
+              </h1>
+              <p className="text-gray-600">
+                View, edit, and manage your food items
+              </p>
+            </div>
+            <Link
+              to="/add-product"
+              className="inline-flex items-center px-6 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition"
+            >
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+              Add Product
+            </Link>
+          </div>
         </div>
 
         {successMessage && (

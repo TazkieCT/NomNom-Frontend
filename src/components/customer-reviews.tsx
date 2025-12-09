@@ -21,6 +21,7 @@ interface Review {
 
 export default function CustomerReviews() {
   const [reviews, setReviews] = useState<Review[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     fetchApprovedRatings()
@@ -28,12 +29,11 @@ export default function CustomerReviews() {
 
   const fetchApprovedRatings = async () => {
     try {
+      setLoading(true)
       const response = await fetch(`${API_URL}/app-ratings/approved`)
       
       if (response.ok) {
         const data = await response.json()
-        // Transform API ratings to match Review interface
-        // Only show 5-star ratings with non-empty comments
         const transformedReviews = data.ratings
           .filter((rating: any) => rating.rating === 5 && rating.comment && rating.comment.trim() !== '')
           .map((rating: any) => ({
@@ -53,6 +53,8 @@ export default function CustomerReviews() {
     } catch (error) {
       console.error('Error fetching ratings:', error)
       setReviews(getFallbackReviews())
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -123,6 +125,45 @@ export default function CustomerReviews() {
 
   const duplicatedReviews = [...reviews, ...reviews, ...reviews]
 
+  const SkeletonCard = () => (
+    <div className="shrink-0 w-[280px] sm:w-[320px] md:w-[380px]">
+      <div className="relative h-full bg-white border border-gray-200 rounded-2xl p-6">
+        <div className="absolute inset-0 bg-linear-to-br from-gray-100 via-transparent to-gray-100 rounded-2xl animate-pulse" />
+        
+        <div className="absolute -top-3 -left-3 bg-gray-300 rounded-full p-2.5 w-10 h-10 animate-pulse" />
+
+        <div className="relative">
+          <div className="flex items-center gap-1 mb-4">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="w-4 h-4 bg-gray-200 rounded animate-pulse" />
+            ))}
+          </div>
+
+          <div className="space-y-2 mb-6">
+            <div className="h-3 bg-gray-200 rounded animate-pulse" />
+            <div className="h-3 bg-gray-200 rounded w-5/6 animate-pulse" />
+            <div className="h-3 bg-gray-200 rounded w-4/6 animate-pulse" />
+          </div>
+
+          <div className="h-px bg-gray-200 mb-4" />
+
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-gray-200 animate-pulse" />
+              
+              <div className="space-y-2">
+                <div className="h-3 bg-gray-200 rounded w-20 animate-pulse" />
+                <div className="h-2 bg-gray-200 rounded w-16 animate-pulse" />
+              </div>
+            </div>
+
+            <div className="h-2 bg-gray-200 rounded w-12 animate-pulse" />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+
   return (
     <section className="py-20 md:py-28 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
@@ -144,25 +185,32 @@ export default function CustomerReviews() {
       </div>
 
       <div className="relative">
-        <div className="absolute left-0 top-0 bottom-0 w-32 bg-linear-to-r from-white to-transparent z-10 pointer-events-none" />
-        <div className="absolute right-0 top-0 bottom-0 w-32 bg-linear-to-l from-white to-transparent z-10 pointer-events-none" />
+        <div className="absolute left-0 top-0 bottom-0 w-16 md:w-32 bg-linear-to-r from-white to-transparent z-10 pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-16 md:w-32 bg-linear-to-l from-white to-transparent z-10 pointer-events-none" />
 
-        <motion.div
-          className="flex gap-6"
-          animate={{
-            x: -1 * (reviews.length * 400),
-          }}
-          transition={{
-            duration: reviews.length * 8,
-            ease: "linear",
-            repeat: Infinity,
-            repeatType: "loop"
-          }}
-        >
+        {loading ? (
+          <div className="flex gap-4 md:gap-6">
+            {[...Array(6)].map((_, index) => (
+              <SkeletonCard key={index} />
+            ))}
+          </div>
+        ) : (
+          <motion.div
+            className="flex gap-4 md:gap-6"
+            animate={{
+              x: -1 * (reviews.length * 300),
+            }}
+            transition={{
+              duration: reviews.length * 8,
+              ease: "linear",
+              repeat: Infinity,
+              repeatType: "loop"
+            }}
+          >
           {duplicatedReviews.map((review, index) => (
             <motion.div
               key={index}
-              className="shrink-0 w-[380px]"
+              className="shrink-0 w-[280px] sm:w-[320px] md:w-[380px]"
               transition={{ duration: 0.3 }}
             >
               <div className="relative h-full bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-md transition-shadow duration-300">
@@ -211,8 +259,9 @@ export default function CustomerReviews() {
                 </div>
               </div>
             </motion.div>
-          ))}
-        </motion.div>
+            ))}
+          </motion.div>
+        )}
       </div>
     </section>
   )

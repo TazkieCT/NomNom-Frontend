@@ -80,14 +80,14 @@ export default function RatingTab() {
         setMessage({ 
           type: 'success', 
           text: existingRating 
-            ? 'Rating updated! It will appear after approval.' 
-            : 'Thank you for your rating! It will appear after approval.'
+            ? 'Rating updated successfully!' 
+            : 'Thank you for your rating!'
         })
         setExistingRating(data)
         setTimeout(() => {
           setMessage(null)
           setIsOpen(false)
-        }, 3000)
+        }, 2000)
       } else {
         setMessage({ type: 'error', text: data.message || 'Failed to submit rating' })
         setTimeout(() => setMessage(null), 3000)
@@ -148,22 +148,6 @@ export default function RatingTab() {
                     <X className="w-5 h-5 text-gray-500" />
                   </button>
                 </div>
-
-                {existingRating && (
-                  <div className={`mb-4 p-3 rounded-lg ${
-                    existingRating.isApproved 
-                      ? 'bg-green-50 border border-green-200' 
-                      : 'bg-yellow-50 border border-yellow-200'
-                  }`}>
-                    <p className={`text-sm ${
-                      existingRating.isApproved ? 'text-green-700' : 'text-yellow-700'
-                    }`}>
-                      {existingRating.isApproved 
-                        ? '✓ Your rating is published' 
-                        : '⏳ Your rating is pending approval'}
-                    </p>
-                  </div>
-                )}
 
                 {message && (
                   <motion.div
@@ -259,11 +243,6 @@ export default function RatingTab() {
                     )}
                   </button>
                 </form>
-
-                {/* Info */}
-                <p className="text-xs text-gray-500 mt-4 text-center">
-                  Your rating will be reviewed before appearing publicly
-                </p>
               </div>
             </motion.div>
           </>

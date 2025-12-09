@@ -312,14 +312,14 @@ export default function AddProduct() {
               <button
                 type="button"
                 onClick={() => navigate(-1)}
-                className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition"
+                className="flex-1 px-6 py-3 border cursor-pointer border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className="flex-1 px-6 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 px-6 py-3 bg-red-600 cursor-pointer text-white rounded-lg font-semibold hover:bg-red-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? 'Adding...' : 'Add Product'}
               </button>

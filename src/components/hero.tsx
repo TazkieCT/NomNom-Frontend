@@ -20,6 +20,13 @@ export default function Hero() {
     return () => clearInterval(interval)
   }, [])
 
+  const scrollToHowItWorks = () => {
+    const element = document.getElementById('how-it-works')
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }
+
   return (    
     <section className="relative min-h-[90vh] flex items-center overflow-hidden">
       <div className="absolute inset-0 z-0">
@@ -48,12 +55,16 @@ export default function Hero() {
             yourself and enjoy quality meals that would otherwise go to waste.
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
-            <Link to="marketplace">
-              <button className="px-8 py-4 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all hover:scale-105 font-medium shadow-lg">
-                Browse Deals
-              </button>
+            <Link 
+              to="marketplace"
+              className="px-8 py-4 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all hover:scale-105 font-medium shadow-lg inline-block"
+            >
+              Browse Deals
             </Link>
-            <button className="px-8 py-4 bg-white/10 backdrop-blur-sm text-white border-2 border-white/30 rounded-lg hover:bg-white/20 transition-all font-medium">
+            <button 
+              onClick={scrollToHowItWorks}
+              className="px-8 py-4 bg-white/10 backdrop-blur-sm cursor-pointer text-white border-2 border-white/30 rounded-lg hover:bg-white/20 transition-all font-medium"
+            >
               Learn More
             </button>
           </div>

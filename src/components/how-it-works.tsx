@@ -28,7 +28,7 @@ export default function HowItWorks() {
   ]
 
   return (
-    <section className="py-20 md:py-28 bg-red-600 relative">
+    <section id="how-it-works" className="py-20 md:py-28 bg-red-600 relative">
       <div className="absolute top-0 left-0 w-full overflow-hidden leading-none">
         <svg
           viewBox="0 0 1200 120"

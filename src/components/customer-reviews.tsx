@@ -1,18 +1,73 @@
-import { motion, useAnimationControls } from "framer-motion"
+import { motion } from "framer-motion"
 import { Star, Quote } from "lucide-react"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api'
 
 interface Review {
-  name: string
-  location: string
+  _id?: string
+  customerId?: {
+    username: string
+  }
+  name?: string
+  location?: string
   rating: number
-  review: string
-  avatar: string
-  date: string
+  review?: string
+  comment?: string
+  avatar?: string
+  date?: string
+  createdAt?: string
 }
 
 export default function CustomerReviews() {
-  const reviews: Review[] = [
+  const [reviews, setReviews] = useState<Review[]>([])
+
+  useEffect(() => {
+    fetchApprovedRatings()
+  }, [])
+
+  const fetchApprovedRatings = async () => {
+    try {
+      const response = await fetch(`${API_URL}/app-ratings/approved`)
+      
+      if (response.ok) {
+        const data = await response.json()
+        // Transform API ratings to match Review interface
+        const transformedReviews = data.ratings.map((rating: any) => ({
+          _id: rating._id,
+          name: rating.customerId?.username || 'Anonymous',
+          location: 'Customer',
+          rating: rating.rating,
+          review: rating.comment || 'No comment provided',
+          avatar: rating.customerId?.username?.substring(0, 2).toUpperCase() || 'AN',
+          date: getRelativeTime(rating.createdAt)
+        }))
+        
+        setReviews(transformedReviews.length > 0 ? transformedReviews : getFallbackReviews())
+      } else {
+        setReviews(getFallbackReviews())
+      }
+    } catch (error) {
+      console.error('Error fetching ratings:', error)
+      setReviews(getFallbackReviews())
+    }
+  }
+
+  const getRelativeTime = (dateString: string) => {
+    const date = new Date(dateString)
+    const now = new Date()
+    const diffInMs = now.getTime() - date.getTime()
+    const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24))
+
+    if (diffInDays === 0) return 'Today'
+    if (diffInDays === 1) return '1 day ago'
+    if (diffInDays < 7) return `${diffInDays} days ago`
+    if (diffInDays < 14) return '1 week ago'
+    if (diffInDays < 30) return `${Math.floor(diffInDays / 7)} weeks ago`
+    return `${Math.floor(diffInDays / 30)} months ago`
+  }
+
+  const getFallbackReviews = (): Review[] => [
     {
       name: "Sarah Chen",
       location: "New York, NY",
@@ -64,35 +119,6 @@ export default function CustomerReviews() {
   ]
 
   const duplicatedReviews = [...reviews, ...reviews, ...reviews]
-  const controls = useAnimationControls()
-
-  useEffect(() => {
-    controls.start({
-      x: -1 * (reviews.length * 400),
-      transition: {
-        duration: reviews.length * 8,
-        ease: "linear",
-        repeat: Infinity,
-        repeatType: "loop"
-      }
-    })
-  }, [controls, reviews.length])
-
-  const handleHoverStart = () => {
-    controls.stop()
-  }
-
-  const handleHoverEnd = () => {
-    controls.start({
-      x: -1 * (reviews.length * 400),
-      transition: {
-        duration: reviews.length * 8,
-        ease: "linear",
-        repeat: Infinity,
-        repeatType: "loop"
-      }
-    })
-  }
 
   return (
     <section className="py-20 md:py-28 overflow-hidden">
@@ -120,9 +146,15 @@ export default function CustomerReviews() {
 
         <motion.div
           className="flex gap-6"
-          animate={controls}
-          onHoverStart={handleHoverStart}
-          onHoverEnd={handleHoverEnd}
+          animate={{
+            x: -1 * (reviews.length * 400),
+          }}
+          transition={{
+            duration: reviews.length * 8,
+            ease: "linear",
+            repeat: Infinity,
+            repeatType: "loop"
+          }}
         >
           {duplicatedReviews.map((review, index) => (
             <motion.div

@@ -173,6 +173,18 @@ export default function Profile() {
               <span className="text-sm font-semibold text-red-600 capitalize">{user?.role}</span>
             </div>
 
+            {!isEditing && (
+              <div className="mb-6">
+                <button
+                  type="button"
+                  onClick={() => setIsEditing(true)}
+                  className="px-6 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition"
+                >
+                  Edit Profile
+                </button>
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
@@ -262,35 +274,25 @@ export default function Profile() {
                 </div>
               )}
 
-              <div className="flex gap-3 pt-4">
-                {!isEditing ? (
+              {isEditing && (
+                <div className="flex gap-3 pt-4">
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="px-6 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {loading ? 'Saving...' : 'Save Changes'}
+                  </button>
                   <button
                     type="button"
-                    onClick={() => setIsEditing(true)}
-                    className="px-6 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition"
+                    onClick={handleCancel}
+                    disabled={loading}
+                    className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Edit Profile
+                    Cancel
                   </button>
-                ) : (
-                  <>
-                    <button
-                      type="submit"
-                      disabled={loading}
-                      className="px-6 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {loading ? 'Saving...' : 'Save Changes'}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleCancel}
-                      disabled={loading}
-                      className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Cancel
-                    </button>
-                  </>
-                )}
-              </div>
+                </div>
+              )}
             </form>
           </div>
         </div>

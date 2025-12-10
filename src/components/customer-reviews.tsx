@@ -22,10 +22,31 @@ interface Review {
 export default function CustomerReviews() {
   const [reviews, setReviews] = useState<Review[]>([])
   const [loading, setLoading] = useState(true)
+  const [position, setPosition] = useState(0)
 
   useEffect(() => {
     fetchApprovedRatings()
   }, [])
+
+  useEffect(() => {
+    if (loading || reviews.length === 0) return
+
+    const cardWidth = 320 + 24
+    const totalWidth = cardWidth * reviews.length
+    const scrollSpeed = 30
+
+    const interval = setInterval(() => {
+      setPosition((prev) => {
+        const newPosition = prev - scrollSpeed / 60
+        if (Math.abs(newPosition) >= totalWidth) {
+          return 0
+        }
+        return newPosition
+      })
+    }, 1000 / 60)
+
+    return () => clearInterval(interval)
+  }, [loading, reviews.length])
 
   const fetchApprovedRatings = async () => {
     try {
@@ -123,7 +144,7 @@ export default function CustomerReviews() {
     }
   ]
 
-  const duplicatedReviews = [...reviews, ...reviews, ...reviews]
+  const duplicatedReviews = [...reviews, ...reviews, ...reviews, ...reviews]
 
   const SkeletonCard = () => (
     <div className="shrink-0 w-[280px] sm:w-[320px] md:w-[380px]">
@@ -195,23 +216,17 @@ export default function CustomerReviews() {
             ))}
           </div>
         ) : (
-          <motion.div
+          <div
             className="flex gap-4 md:gap-6"
-            animate={{
-              x: -1 * (reviews.length * 300),
-            }}
-            transition={{
-              duration: reviews.length * 8,
-              ease: "linear",
-              repeat: Infinity,
-              repeatType: "loop"
+            style={{
+              transform: `translateX(${position}px)`,
+              transition: 'none'
             }}
           >
           {duplicatedReviews.map((review, index) => (
-            <motion.div
+            <div
               key={index}
               className="shrink-0 w-[280px] sm:w-[320px] md:w-[380px]"
-              transition={{ duration: 0.3 }}
             >
               <div className="relative h-full bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-md transition-shadow duration-300">
                 <div className="absolute inset-0 bg-linear-to-br from-red-500/5 via-transparent to-orange-500/5 rounded-2xl" />
@@ -258,9 +273,9 @@ export default function CustomerReviews() {
                   </div>
                 </div>
               </div>
-            </motion.div>
+            </div>
             ))}
-          </motion.div>
+          </div>
         )}
       </div>
     </section>

@@ -83,7 +83,12 @@ export default function SignUp() {
             <span className="text-sm font-medium text-gray-700">Full name</span>
             <input 
               value={name} 
-              onChange={(e) => setName(e.target.value)} 
+              onChange={(e) => {
+                const value = e.target.value
+                if (/^[a-zA-Z\s]*$/.test(value)) {
+                  setName(value)
+                }
+              }} 
               className="mt-1 block w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-red-100 outline-none" 
               placeholder="Jane Doe"
               required

@@ -147,7 +147,7 @@ export default function Header() {
                           </Link>
                         )}
 
-                        <Link
+                        {/* <Link
                           to="/settings"
                           onClick={() => setDropdownOpen(false)}
                           className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition"
@@ -157,7 +157,7 @@ export default function Header() {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                           </svg>
                           Settings
-                        </Link>
+                        </Link> */}
 
                         <div className="border-t border-gray-100 mt-1 pt-1">
                           <button
@@ -297,7 +297,7 @@ export default function Header() {
                       </Link>
                     )}
 
-                    <Link
+                    {/* <Link
                       to="/settings"
                       onClick={() => setOpen(false)}
                       className="px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md flex items-center gap-2"
@@ -307,7 +307,7 @@ export default function Header() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                       </svg>
                       Settings
-                    </Link>
+                    </Link> */}
 
                     <button
                       onClick={handleLogout}

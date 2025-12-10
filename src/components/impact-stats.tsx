@@ -58,7 +58,7 @@ export default function ImpactStats() {
               <img
                 src="/paperbag.png"
                 alt="Food bag"
-                className="w-64 h-64 md:w-80 md:h-80 object-contain drop-shadow-2xl"
+                className="w-80 h-80 md:w-96 md:h-96 object-contain drop-shadow-2xl"
               />
             </div>
           </motion.div>
@@ -91,7 +91,7 @@ export default function ImpactStats() {
                 <div className="text-5xl font-black text-red-600 mb-2">{stats[0].value}</div>
                 <div className="text-gray-700 font-medium text-lg">{stats[0].label}</div>
               </div>
-              <svg className="absolute top-1/2 left-full w-48 h-48" style={{ transform: "translateY(-50%)" }}>
+              <svg className="absolute top-30 left-full w-48 h-48 ml-8" style={{ transform: "translateY(-50%)" }}>
                 <motion.path
                   d="M 0 0 C 60 0, 80 40, 100 60 C 110 70, 120 100, 192 120"
                   stroke="#000000"
@@ -117,9 +117,9 @@ export default function ImpactStats() {
                 <div className="text-5xl font-black text-red-600 mb-2">{stats[1].value}</div>
                 <div className="text-gray-700 font-medium text-lg">{stats[1].label}</div>
               </div>
-              <svg className="absolute top-1/2 right-full w-48 h-48" style={{ transform: "translateY(-50%)" }}>
+              <svg className="absolute top-30 right-full w-48 h-48 mr-12" style={{ transform: "translateY(-50%)" }}>
                 <motion.path
-                  d="M 192 0 C 132 0, 112 40, 92 60 C 82 70, 72 100, 0 120"
+                  d="M 192 20 C 132 20, 112 60, 110 60 C 82 80, 72 100, 48 120"
                   stroke="#000000"
                   strokeWidth="2"
                   fill="none"
@@ -143,7 +143,7 @@ export default function ImpactStats() {
                 <div className="text-5xl font-black text-red-600 mb-2">{stats[2].value}</div>
                 <div className="text-gray-700 font-medium text-lg">{stats[2].label}</div>
               </div>
-              <svg className="absolute bottom-1/2 left-full w-48 h-48" style={{ transform: "translateY(50%)" }}>
+              <svg className="absolute bottom-30 left-full w-48 h-48 ml-8" style={{ transform: "translateY(50%)" }}>
                 <motion.path
                   d="M 0 192 C 60 192, 80 152, 100 132 C 110 122, 120 92, 192 72"
                   stroke="#000000"
@@ -169,7 +169,7 @@ export default function ImpactStats() {
                 <div className="text-5xl font-black text-red-600 mb-2">{stats[3].value}</div>
                 <div className="text-gray-700 font-medium text-lg">{stats[3].label}</div>
               </div>
-              <svg className="absolute bottom-1/2 right-full w-48 h-48" style={{ transform: "translateY(50%)" }}>
+              <svg className="absolute bottom-30 right-full w-48 h-48 mr-8" style={{ transform: "translateY(50%)" }}>
                 <motion.path
                   d="M 192 192 C 132 192, 112 152, 92 132 C 82 122, 72 92, 0 72"
                   stroke="#000000"

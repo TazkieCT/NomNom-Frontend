@@ -342,7 +342,7 @@ export default function EditProduct() {
             <div className="flex gap-4 pt-4">
               <button
                 type="button"
-                onClick={() => navigate('/manage-products')}
+                onClick={() => navigate(-1)}
                 className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition"
               >
                 Cancel
